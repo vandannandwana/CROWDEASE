@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.exyte.animatednavbar.AnimatedNavigationBar
@@ -97,7 +98,7 @@ fun BottomNavigationBar(
     AnimatedNavigationBar(
         selectedIndex = currentPage, modifier = modifier
             .padding(24.dp),
-        ballColor = Constants.BLUE_COLOR,
+        ballColor = colorResource(Constants.BLUE_COLOR),
         ballAnimation = com.exyte.animatednavbar.animation.balltrajectory.Straight(tween(700)),
         cornerRadius = ShapeCornerRadius(60f, 60f, 60f, 60f)
     ) {
@@ -114,7 +115,7 @@ fun BottomNavigationBar(
                 Icon(
                     imageVector = item.icon,
                     contentDescription = null,
-                    tint = if (currentPage == item.ordinal) Constants.BLUE_COLOR else Color.Gray
+                    tint = if (currentPage == item.ordinal) colorResource(Constants.BLUE_COLOR) else colorResource(Constants.GREY)
                 )
             }
 

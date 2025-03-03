@@ -8,10 +8,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="com.minor.crowdease" />
+                  <option name="mobileSdkAppId" value="1:644292761014:android:1c527a92b4e63db52b1d17" />
+                  <option name="projectId" value="crowdease-6507c" />
+                  <option name="projectNumber" value="644292761014" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

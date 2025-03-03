@@ -10,5 +10,8 @@ sealed class Screens(val route:String){
     data object MenuScreen:Screens(route = "menu_screen")
     data object OtpScreen:Screens(route = "otp_screen")
     data object ShopScreen:Screens(route = "shop_screen")
+    data object OrderPlaceScreen:Screens(route = "order_place_screen")
+    data object SuccessScreen:Screens(route = "success_screen")
+    data object MessageScreen:Screens(route = "message_screen")
 
 }

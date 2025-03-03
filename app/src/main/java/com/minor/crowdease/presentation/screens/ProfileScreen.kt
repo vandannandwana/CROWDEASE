@@ -35,6 +35,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -72,7 +73,7 @@ private fun ProfileScreenPreview() {
                 ) {
 
                     Image(
-                        painter = painterResource(R.drawable.student_profile),
+                        painter = painterResource(R.drawable.puff_image),
                         contentDescription = "student_profile",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -83,14 +84,15 @@ private fun ProfileScreenPreview() {
                         Text(
                             "Vandan Nandwana",
                             fontFamily = Constants.POOPINS_FONT_BOLD,
-                            fontSize = 24.sp
+                            fontSize = 24.sp,
+                            color = colorResource(Constants.TEXT_COLOR)
                         )
 
                         Text(
                             "ID: 2203051050XXX",
                             fontFamily = Constants.POOPINS_FONT_BOLD,
                             fontSize = 14.sp,
-                            color = Color.Gray
+                            color = colorResource(Constants.TEXT_COLOR)
                         )
 
 
@@ -100,13 +102,14 @@ private fun ProfileScreenPreview() {
                         modifier = Modifier
                             .size(34.dp)
                             .clip(RoundedCornerShape(7.dp))
-                            .background(Color.LightGray),
+                            .background(colorResource(Constants.GREY)),
                         contentAlignment = Alignment.Center
                     ) {
 
                         Icon(
                             imageVector = Icons.Default.Edit,
-                            contentDescription = "notification_icon"
+                            contentDescription = "notification_icon",
+                            tint = colorResource(Constants.BACKGROUND_COLOR)
                         )
 
                     }
@@ -145,13 +148,13 @@ private fun ProfileScreenPreview() {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(Color.White)
+                            .background(colorResource(Constants.BACKGROUND_COLOR))
                     ) {
 
                         Text(
                             text = "Settings",
                             fontFamily = Constants.POOPINS_FONT_BOLD,
-                            color = Color.Black,
+                            color = colorResource(Constants.TEXT_COLOR),
                             fontSize = 18.sp,
                             modifier = Modifier.padding(12.dp)
                         )
@@ -201,7 +204,7 @@ fun SettingItem(modifier: Modifier = Modifier,setting: Setting) {
         modifier = Modifier
             .fillMaxWidth()
             .height(64.dp)
-            .background(Color.White )
+            .background(colorResource(Constants.BACKGROUND_COLOR))
             .padding(4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -210,19 +213,21 @@ fun SettingItem(modifier: Modifier = Modifier,setting: Setting) {
             imageVector = setting.icon,
             contentDescription = "profile_icon",
             modifier = Modifier.weight(0.2f),
-            tint = Color.Gray
+            tint = colorResource(Constants.TEXT_COLOR)
         )
 
         Text(
             text = setting.name,
             fontFamily = Constants.POOPINS_FONT_SEMI_BOLD,
-            modifier = Modifier.weight(0.6f)
+            modifier = Modifier.weight(0.6f),
+            color = colorResource(Constants.TEXT_COLOR)
         )
 
         Icon(
             imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
             contentDescription = "profile_icon",
             modifier = Modifier.weight(0.2f),
+            tint = colorResource(Constants.TEXT_COLOR)
         )
 
     }

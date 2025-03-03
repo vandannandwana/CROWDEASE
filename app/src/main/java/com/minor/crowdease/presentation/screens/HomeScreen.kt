@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -35,9 +36,6 @@ import com.minor.crowdease.utlis.Constants
 fun HomeScreen(modifier: Modifier = Modifier, navHostController: NavHostController) {
     HomeScreenPreview()
 }
-
-
-@Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
     val firstProgress = 0.3f
@@ -64,13 +62,14 @@ private fun HomeScreenPreview() {
                         Text(
                             "Parul University",
                             fontFamily = Constants.POOPINS_FONT_REGULAR,
-                            color = Constants.BLUE_COLOR,
+                            color = colorResource(Constants.BLUE_COLOR),
                             fontSize = 32.sp
                         )
                         Text(
                             "Food Court",
                             fontFamily = Constants.POOPINS_FONT_REGULAR,
-                            fontSize = 18.sp
+                            fontSize = 18.sp,
+                            color = colorResource(Constants.TEXT_COLOR)
                         )
                     }
 
@@ -108,12 +107,14 @@ private fun HomeScreenPreview() {
                         Text(
                             "Hey There!",
                             fontFamily = Constants.POOPINS_FONT_SEMI_BOLD,
-                            fontSize = 34.sp
+                            fontSize = 34.sp,
+                            color = colorResource(Constants.TEXT_COLOR)
                         )
                         Text(
                             "What would you like  to eat today?",
                             fontFamily = Constants.POOPINS_FONT_REGULAR,
-                            fontSize = 18.sp
+                            fontSize = 18.sp,
+                            color = colorResource(Constants.TEXT_COLOR)
                         )
 
                         Spacer(modifier = Modifier.height(12.dp))
@@ -123,7 +124,7 @@ private fun HomeScreenPreview() {
                                 .fillMaxWidth(),
                             shape = RoundedCornerShape(7.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = Color.White
+                                containerColor = colorResource(Constants.DARK_GREY)
                             ),
                             elevation = CardDefaults.cardElevation(
                                 defaultElevation = 7.dp
@@ -137,13 +138,14 @@ private fun HomeScreenPreview() {
                                     .padding(8.dp)) {
                                     Text(
                                         "Current Rush Status",
-                                        fontFamily = Constants.POOPINS_FONT_REGULAR
+                                        fontFamily = Constants.POOPINS_FONT_REGULAR,
+                                        color = colorResource(Constants.TEXT_COLOR)
                                     )
 
                                     Text(
                                         "Capitol",
                                         fontFamily = Constants.POOPINS_FONT_REGULAR,
-                                        color = Color(0xFF22C45E)
+                                        color = colorResource(Constants.GREEN_COLOR)
                                     )
                                     LinearProgressIndicator(
                                         modifier = Modifier

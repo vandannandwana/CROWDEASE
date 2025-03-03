@@ -1,5 +1,6 @@
 package com.minor.crowdease.presentation.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -40,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -84,7 +86,8 @@ fun SearchScreen(navHostController: NavHostController) {
                     Text(
                         "Food Courts",
                         fontFamily = Constants.POOPINS_FONT_REGULAR,
-                        fontSize = 32.sp
+                        fontSize = 32.sp,
+                        color = colorResource(Constants.TEXT_COLOR)
                     )
 
                     Box(
@@ -123,19 +126,20 @@ fun SearchScreen(navHostController: NavHostController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp)
-                        .border(1.dp, Color.Black, RoundedCornerShape(18.dp)),
+                        .border(1.dp, colorResource(Constants.TEXT_COLOR), RoundedCornerShape(18.dp)),
                     value = searchQuery,
                     textStyle = TextStyle(fontFamily = Constants.POOPINS_FONT_REGULAR),
                     placeholder = {
                         Text(
                             "Search Food Courts ...",
-                            fontFamily = Constants.POOPINS_FONT_REGULAR
+                            fontFamily = Constants.POOPINS_FONT_REGULAR,
+                            color = colorResource(Constants.TEXT_COLOR)
                         )
                     },
                     onValueChange = { searchQuery = it },
                     colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.White,
-                        unfocusedContainerColor = Color.White,
+                        focusedContainerColor = colorResource(Constants.BACKGROUND_COLOR),
+                        unfocusedContainerColor = colorResource(Constants.BACKGROUND_COLOR),
                         focusedIndicatorColor = Color.Transparent,
                         unfocusedIndicatorColor = Color.Transparent,
                     ),
@@ -160,11 +164,14 @@ fun SearchScreen(navHostController: NavHostController) {
             }else {
                 if(foodCourtState.error != null) {
                     item {
-                        Text(text = foodCourtState.error)
+                        Text(text = foodCourtState.error,color = colorResource(Constants.TEXT_COLOR))
                     }
                 }else if(foodCourtState.foodCourts != null){
                     items(foodCourtState.foodCourts.data) { foodCourt ->
                         FoodCourtItem(foodCourt, navHostController = navHostController)
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(90.dp))
                     }
                 }
             }
@@ -190,9 +197,10 @@ fun FoodCourtItem(
             .clickable {
                 navHostController.navigate(Screens.ShopScreen.route+"${foodCourt.id}")
             },
+        border = BorderStroke(1.dp, colorResource(Constants.TEXT_COLOR)),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = colorResource(Constants.BACKGROUND_COLOR)
         ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 7.dp
@@ -216,7 +224,7 @@ fun FoodCourtItem(
                     modifier = Modifier
                         .padding(12.dp)
                         .clip(RoundedCornerShape(50.dp))
-                        .background(Constants.GREEN_COLOR)
+                        .background(colorResource(Constants.GREEN_COLOR))
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                         .align(Alignment.BottomStart),
                     contentAlignment = Alignment.Center
@@ -242,7 +250,8 @@ fun FoodCourtItem(
                 Text(
                     text = foodCourt.name,
                     fontFamily = Constants.POOPINS_FONT_SEMI_BOLD,
-                    fontSize = 24.sp
+                    fontSize = 24.sp,
+                    color = colorResource(Constants.TEXT_COLOR)
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -256,7 +265,8 @@ fun FoodCourtItem(
                     )
                     Text(
                         "4.5",
-                        fontFamily = Constants.POOPINS_FONT_REGULAR
+                        fontFamily = Constants.POOPINS_FONT_REGULAR,
+                        color = colorResource(Constants.TEXT_COLOR)
                     )
                 }
 
@@ -266,7 +276,7 @@ fun FoodCourtItem(
                 text = foodCourt.location,
                 fontFamily = Constants.POOPINS_FONT_REGULAR,
                 fontSize = 16.sp,
-                color = Color.Gray,
+                color = colorResource(Constants.TEXT_COLOR),
                 modifier = Modifier.padding(horizontal = 12.dp)
             )
 
@@ -288,7 +298,7 @@ fun FoodCourtItem(
                         tint = Color.Gray,
                         modifier = Modifier.size(18.dp)
                     )
-                    Text("30 min", fontFamily = Constants.POOPINS_FONT_REGULAR)
+                    Text("30 min", fontFamily = Constants.POOPINS_FONT_REGULAR,color = colorResource(Constants.TEXT_COLOR))
                 }
 
                 Row(
@@ -302,7 +312,7 @@ fun FoodCourtItem(
                         tint = Color.Gray,
                         modifier = Modifier.size(18.dp)
                     )
-                    Text("4 Outlets", fontFamily = Constants.POOPINS_FONT_REGULAR)
+                    Text("4 Outlets", fontFamily = Constants.POOPINS_FONT_REGULAR,color = colorResource(Constants.TEXT_COLOR))
                 }
 
 

@@ -1,5 +1,6 @@
 package com.minor.crowdease.presentation.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -88,13 +90,7 @@ fun ShopScreen(
                 else if (shopState.shopCourts != null){
 
                     items(shopState.shopCourts.shops){shop->
-                        Box(
-                            modifier = Modifier.clickable {
-                                navHostController.navigate(Screens.MenuScreen.route)
-                            }
-                        ){
-                            ShopItem(shopData = shop, navHostController = navHostController)
-                        }
+                        ShopItem(shopData = shop, navHostController = navHostController,foodCourtId = foodCourtId)
                     }
 
                 }
@@ -112,18 +108,22 @@ fun ShopScreen(
 @Composable
 fun ShopItem(
     shopData: Shop,
-    modifier: Modifier = Modifier,
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    foodCourtId: String
 ) {
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(12.dp),
+            .padding(12.dp)
+            .clickable {
+                navHostController.navigate(Screens.MenuScreen.route+"${shopData.id}/${foodCourtId}")
+            },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = Color.White
+            containerColor = colorResource(Constants.BACKGROUND_COLOR)
         ),
+        border = BorderStroke(1.dp, colorResource(Constants.TEXT_COLOR)),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 7.dp
         )
@@ -144,7 +144,7 @@ fun ShopItem(
                     modifier = Modifier
                         .padding(12.dp)
                         .clip(RoundedCornerShape(50.dp))
-                        .background(Constants.GREEN_COLOR)
+                        .background(colorResource(Constants.GREEN_COLOR))
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                         .align(Alignment.BottomStart),
                     contentAlignment = Alignment.Center
@@ -171,6 +171,7 @@ fun ShopItem(
                     text = shopData.name,
                     fontFamily = Constants.POOPINS_FONT_SEMI_BOLD,
                     fontSize = 28.sp,
+                    color = colorResource(Constants.TEXT_COLOR)
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -184,7 +185,8 @@ fun ShopItem(
                     )
                     Text(
                         "4.5",
-                        fontFamily = Constants.POOPINS_FONT_REGULAR
+                        fontFamily = Constants.POOPINS_FONT_REGULAR,
+                        color = colorResource(Constants.TEXT_COLOR)
                     )
                 }
 
@@ -194,7 +196,7 @@ fun ShopItem(
                 text = shopData.contactPhone,
                 fontFamily = Constants.POOPINS_FONT_REGULAR,
                 fontSize = 18.sp,
-                color = Color.Gray,
+                color = colorResource(Constants.TEXT_COLOR),
                 modifier = Modifier.padding(horizontal = 12.dp)
             )
 
@@ -216,7 +218,7 @@ fun ShopItem(
                         tint = Color.Gray,
                         modifier = Modifier.size(18.dp)
                     )
-                    Text("30 min", fontFamily = Constants.POOPINS_FONT_REGULAR)
+                    Text("30 min", fontFamily = Constants.POOPINS_FONT_REGULAR,color = colorResource(Constants.TEXT_COLOR))
                 }
 
                 Row(
@@ -230,7 +232,7 @@ fun ShopItem(
                         tint = Color.Gray,
                         modifier = Modifier.size(18.dp)
                     )
-                    Text("4 Outlets", fontFamily = Constants.POOPINS_FONT_REGULAR)
+                    Text("4 Outlets", fontFamily = Constants.POOPINS_FONT_REGULAR,color = colorResource(Constants.TEXT_COLOR))
                 }
 
 

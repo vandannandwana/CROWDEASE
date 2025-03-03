@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "644292761014",
+    "project_id": "crowdease-6507c",
+    "storage_bucket": "crowdease-6507c.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:644292761014:android:1c527a92b4e63db52b1d17",
+        "android_client_info": {
+          "package_name": "com.minor.crowdease"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDTajj-6KStlJz-vo_SOl_BLTaFQb-RdqA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

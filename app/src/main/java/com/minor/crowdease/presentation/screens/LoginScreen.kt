@@ -3,7 +3,9 @@ package com.minor.crowdease.presentation.screens
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -25,6 +27,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -42,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -66,10 +70,14 @@ fun LoginScreen(navHostController:NavHostController,modifier: Modifier = Modifie
 
     val scope = rememberCoroutineScope()
 
-    val loginState = loginViewModel.loginState.collectAsStateWithLifecycle().value
-    val registerState = loginViewModel.registerState.collectAsStateWithLifecycle().value
+    var loginState = loginViewModel.loginState.collectAsStateWithLifecycle().value
+    var registerState = loginViewModel.registerState.collectAsStateWithLifecycle().value
 
-    val blue_color = Color(0xFF2563E9)
+    val buttonSize by animateFloatAsState(
+        if(loginState.isLoading || registerState.isLoading) 0f else 1f,
+    )
+
+    val blue_color = colorResource(Constants.BLUE_COLOR)
 
     var currentPage by remember {
         mutableStateOf(LS.LOGIN)
@@ -126,7 +134,7 @@ fun LoginScreen(navHostController:NavHostController,modifier: Modifier = Modifie
             modifier = Modifier
                 .fillMaxSize()
                 .padding(ip)
-                .background(Color(0xFFEFF6FD))
+                .background(colorResource(Constants.BACKGROUND_COLOR))
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -138,7 +146,7 @@ fun LoginScreen(navHostController:NavHostController,modifier: Modifier = Modifie
                     .width(100.dp)
                     .height(100.dp)
                     .clip(CircleShape)
-                    .background(color = Color(0xFF2563EB)),
+                    .background(colorResource(Constants.BLUE_COLOR)),
                 contentAlignment = Alignment.Center
 
             ) {
@@ -154,7 +162,7 @@ fun LoginScreen(navHostController:NavHostController,modifier: Modifier = Modifie
                     .fillMaxWidth()
                     .padding(24.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color.White
+                    containerColor = colorResource(Constants.BACKGROUND_COLOR)
                 )
             ) {
                 //Login Register Box
@@ -216,7 +224,7 @@ fun LoginScreen(navHostController:NavHostController,modifier: Modifier = Modifie
                             .fillMaxWidth()
                             .padding(12.dp)
                             .height(name_height),
-                        label = { Text("Full Name") },
+                        label = { Text("Full Name", color = colorResource(Constants.TEXT_COLOR)) },
                         textStyle = TextStyle(
                             fontFamily = Constants.POOPINS_FONT_REGULAR
                         ),
@@ -231,7 +239,7 @@ fun LoginScreen(navHostController:NavHostController,modifier: Modifier = Modifie
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
-                    label = { Text("Email") },
+                    label = { Text("Email", color = colorResource(Constants.TEXT_COLOR)) },
                     textStyle = TextStyle(
                         fontFamily = Constants.POOPINS_FONT_REGULAR
                     ),
@@ -244,7 +252,7 @@ fun LoginScreen(navHostController:NavHostController,modifier: Modifier = Modifie
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp),
-                    label = { Text("Password") },
+                    label = { Text("Password", color = colorResource(Constants.TEXT_COLOR)) },
                     textStyle = TextStyle(
                         fontFamily = Constants.POOPINS_FONT_REGULAR
                     ),
@@ -259,7 +267,7 @@ fun LoginScreen(navHostController:NavHostController,modifier: Modifier = Modifie
                             .fillMaxWidth()
                             .padding(12.dp)
                             .height(name_height),
-                        label = { Text("Re-Password") },
+                        label = { Text("Re-Password", color = colorResource(Constants.TEXT_COLOR)) },
                         textStyle = TextStyle(
                             fontFamily = Constants.POOPINS_FONT_REGULAR
                         ),
@@ -273,42 +281,78 @@ fun LoginScreen(navHostController:NavHostController,modifier: Modifier = Modifie
                         .fillMaxWidth()
                         .padding(12.dp),
                     textAlign = TextAlign.End,
-                    color = blue_color
+                    color = colorResource(Constants.TEXT_COLOR)
                 )
-
-                Button(
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(12.dp),
-                    shape = RoundedCornerShape(7.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = blue_color
-                    ),
-                    onClick = {
-                        if (currentPage == LS.LOGIN) {
-                            scope.launch {
-                                if(loginViewModel.login(email, password)){
-                                    navHostController.navigate(Screens.MainScreen.route)
-                                    Toast.makeText(context, "Login Successfully", Toast.LENGTH_LONG).show()
-                                }else{
-                                    Toast.makeText(context, loginState.error, Toast.LENGTH_LONG).show()
+                        .height(60.dp)
+                ){
+                    if(buttonSize>0f) {
+                        Button(
+                            modifier = Modifier
+                                .fillMaxWidth(buttonSize)
+                                .padding(12.dp),
+                            shape = RoundedCornerShape(7.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = blue_color
+                            ),
+                            onClick = {
+                                if (currentPage == LS.LOGIN) {
+                                    scope.launch {
+                                        if (loginViewModel.login(email, password)) {
+                                            navHostController.navigate(Screens.MainScreen.route)
+                                            Toast.makeText(
+                                                context,
+                                                "Login Successfully",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    }
+                                } else {
+                                    scope.launch {
+                                        if (loginViewModel.register(
+                                                name,
+                                                email,
+                                                password,
+                                                "1234567890"
+                                            )
+                                        ) {
+                                            navHostController.navigate(Screens.OtpScreen.route)
+                                            Toast.makeText(
+                                                context,
+                                                "Otp Sent Successfully",
+                                                Toast.LENGTH_LONG
+                                            ).show()
+                                        }
+                                    }
                                 }
                             }
-                        } else {
-                            scope.launch {
-                                if (loginViewModel.register(name, email, password, "1234567890")){
-                                    navHostController.navigate(Screens.OtpScreen.route)
-                                    Toast.makeText(context, "Otp Sent Successfully", Toast.LENGTH_LONG).show()
-                                }else{
-                                    Toast.makeText(context, loginState.error, Toast.LENGTH_LONG).show()
-                                }
-                            }
+                        ) {
+                            Text(if (currentPage == LS.LOGIN) "Login" else "Register", color = colorResource(Constants.TEXT_COLOR))
                         }
-                        navHostController.navigate(Screens.MainScreen.route)
-                        Toast.makeText(context, "Login Successfully", Toast.LENGTH_LONG).show()
+                    }else {
+                        CircularProgressIndicator()
+                        if (registerState.error != null) {
+                            Toast.makeText(
+                                context,
+                                registerState.error,
+                                Toast.LENGTH_LONG
+                            ).show()
+                            registerState = registerState.copy(error = null)
+                        }
+                        if (loginState.error != null) {
+                            Toast.makeText(
+                                context,
+                                loginState.error,
+                                Toast.LENGTH_LONG
+                            ).show()
+                            loginState = loginState.copy(error = null)
+                        }
                     }
-                ) {
-                    Text(if (currentPage == LS.LOGIN) "Login" else "Register")
+
                 }
 
                 Box(
@@ -321,12 +365,13 @@ fun LoginScreen(navHostController:NavHostController,modifier: Modifier = Modifie
                         Modifier
                             .fillMaxWidth()
                             .height(1.dp)
-                            .background(Color(0xFF878181))
+                            .background(colorResource(Constants.TEXT_COLOR))
                     )
                     Text(
                         " Or continue with ",
                         fontFamily = Constants.POOPINS_FONT_REGULAR,
-                        modifier = Modifier.background(Color.White)
+                        modifier = Modifier.background(colorResource(Constants.BACKGROUND_COLOR)),
+                        color = colorResource(Constants.TEXT_COLOR)
                     )
                 }
 
@@ -339,7 +384,7 @@ fun LoginScreen(navHostController:NavHostController,modifier: Modifier = Modifie
                         Toast.makeText(context, "Google Sign in Done", Toast.LENGTH_LONG).show()
                     }
                 ) {
-                    Icon(
+                    Image(
                         painter = painterResource(R.drawable.google_ic),
                         contentDescription = "google_icon",
                         modifier = Modifier.size(34.dp)

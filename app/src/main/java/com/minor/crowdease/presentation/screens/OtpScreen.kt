@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -29,20 +30,27 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.minor.crowdease.R
 import com.minor.crowdease.navigations.Screens
+import com.minor.crowdease.presentation.viewmodels.LoginViewModel
 import com.minor.crowdease.utlis.Constants
+import kotlinx.coroutines.launch
 
 
 @Composable
 fun OtpScreen(navHostController: NavHostController) {
+
+    val loginViewModel = hiltViewModel<LoginViewModel>()
+    val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -117,11 +125,18 @@ fun OtpScreen(navHostController: NavHostController) {
                         .padding(12.dp),
                     shape = RoundedCornerShape(7.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = Constants.BLUE_COLOR
+                        containerColor = colorResource(Constants.BLUE_COLOR)
                     ),
                     onClick = {
-                        navHostController.navigate(Screens.MainScreen.route)
-                        Toast.makeText(context, "Login Successfully", Toast.LENGTH_LONG).show()
+                        scope.launch {
+                            if(loginViewModel.verify(otp)){
+                                navHostController.navigate(Screens.MainScreen.route)
+                                Toast.makeText(context, "Login Successfully", Toast.LENGTH_LONG).show()
+                            }else{
+                                Toast.makeText(context, "Login Failed", Toast.LENGTH_LONG).show()
+                            }
+                        }
+
                     }
                 ) {
                     Text("Verify")
