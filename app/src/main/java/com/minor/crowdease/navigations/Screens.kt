@@ -13,5 +13,6 @@ sealed class Screens(val route:String){
     data object OrderPlaceScreen:Screens(route = "order_place_screen")
     data object SuccessScreen:Screens(route = "success_screen")
     data object MessageScreen:Screens(route = "message_screen")
+    data object ProfileEditScreen:Screens(route = "profile_edit_screen")
 
 }

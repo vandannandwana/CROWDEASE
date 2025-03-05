@@ -1,5 +1,6 @@
 package com.minor.crowdease.presentation.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.minor.crowdease.data.dto.food_court.FoodCourtState
@@ -42,6 +43,16 @@ class FoodCourtViewModel @Inject constructor(
                 error = e.message,
                 isLoading = false
             )
+        }
+    }
+
+    suspend fun getPendingOrders(courtId: String): Int {
+        try {
+            val response = foodCourtService.pendingOrderFoodCourt(courtId)
+            return response.pendingOrders
+        }catch (e:Exception){
+            Log.d("Pending Orders", "getPendingOrders: ${e.message}")
+            return 0
         }
     }
 

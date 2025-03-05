@@ -23,7 +23,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
@@ -51,9 +50,8 @@ fun MainScreen(modifier: Modifier = Modifier, navHostController: NavHostControll
 
     LaunchedEffect(currentPage) {
         scope.launch {
-            pagerState.animateScrollToPage(
-                currentPage,
-                animationSpec = tween(durationMillis = 700, easing = FastOutSlowInEasing)
+            pagerState.scrollToPage(
+                currentPage
             )
         }
     }

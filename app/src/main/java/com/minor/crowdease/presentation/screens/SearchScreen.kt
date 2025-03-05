@@ -1,5 +1,9 @@
 package com.minor.crowdease.presentation.screens
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animate
+import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,9 +36,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -43,6 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -50,9 +59,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.minor.crowdease.data.dto.food_court.FoodCourtData
+import com.minor.crowdease.data.dto.food_court.FoodCourtDto
 import com.minor.crowdease.navigations.Screens
 import com.minor.crowdease.presentation.viewmodels.FoodCourtViewModel
 import com.minor.crowdease.utlis.Constants
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun SearchScreen(navHostController: NavHostController) {
@@ -60,7 +72,7 @@ fun SearchScreen(navHostController: NavHostController) {
     val foodCourtViewModel = hiltViewModel<FoodCourtViewModel>()
 
     val foodCourtState = foodCourtViewModel.foodCourtState.collectAsStateWithLifecycle().value
-
+    val scope = rememberCoroutineScope()
 
     var searchQuery by remember {
         mutableStateOf("")
@@ -126,7 +138,11 @@ fun SearchScreen(navHostController: NavHostController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp)
-                        .border(1.dp, colorResource(Constants.TEXT_COLOR), RoundedCornerShape(18.dp)),
+                        .border(
+                            1.dp,
+                            colorResource(Constants.TEXT_COLOR),
+                            RoundedCornerShape(18.dp)
+                        ),
                     value = searchQuery,
                     textStyle = TextStyle(fontFamily = Constants.POOPINS_FONT_REGULAR),
                     placeholder = {
@@ -157,19 +173,40 @@ fun SearchScreen(navHostController: NavHostController) {
 
 
             }
-            if(foodCourtState.isLoading) {
+            if (foodCourtState.isLoading) {
                 item {
                     CircularProgressIndicator()
                 }
-            }else {
-                if(foodCourtState.error != null) {
+            } else {
+                if (foodCourtState.error != null) {
                     item {
-                        Text(text = foodCourtState.error,color = colorResource(Constants.TEXT_COLOR))
+                        Text(
+                            text = foodCourtState.error,
+                            color = colorResource(Constants.TEXT_COLOR)
+                        )
                     }
-                }else if(foodCourtState.foodCourts != null){
+                } else if (foodCourtState.foodCourts != null) {
+
                     items(foodCourtState.foodCourts.data) { foodCourt ->
-                        FoodCourtItem(foodCourt, navHostController = navHostController)
+                        if (searchQuery.isNotBlank()) {
+                            if (foodCourt.name.lowercase().startsWith(searchQuery.lowercase())) {
+                                FoodCourtItem(
+                                    foodCourt = foodCourt,
+                                    foodCourtViewModel = foodCourtViewModel,
+                                    scope = scope,
+                                    navHostController = navHostController
+                                )
+                            }
+                        } else {
+                            FoodCourtItem(
+                                foodCourt = foodCourt,
+                                foodCourtViewModel = foodCourtViewModel,
+                                scope = scope,
+                                navHostController = navHostController
+                            )
+                        }
                     }
+
                     item {
                         Spacer(modifier = Modifier.height(90.dp))
                     }
@@ -187,15 +224,40 @@ fun SearchScreen(navHostController: NavHostController) {
 fun FoodCourtItem(
     foodCourt: FoodCourtData,
     modifier: Modifier = Modifier,
+    scope: CoroutineScope,
+    foodCourtViewModel: FoodCourtViewModel,
     navHostController: NavHostController
 ) {
+
+    var pendingOrders by rememberSaveable {
+        mutableIntStateOf(0)
+    }
+
+    var text by remember {
+        mutableStateOf("Low Rush")
+    }
+
+    val animatePendingOrderColor by animateColorAsState(
+        targetValue = if (pendingOrders < 6) Color.Green else if (pendingOrders <= 15) Color.Yellow else Color.Red,
+        animationSpec = tween(durationMillis = 200)
+    )
+
+    LaunchedEffect(Unit) {
+        scope.launch {
+            pendingOrders = foodCourtViewModel.getPendingOrders(foodCourt.id)
+            text =
+                if (pendingOrders < 6) "Low Rush" else if (pendingOrders <= 15) "Mid Rush" else "High Rush"
+        }
+    }
+
+
 
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(12.dp)
             .clickable {
-                navHostController.navigate(Screens.ShopScreen.route+"${foodCourt.id}")
+                navHostController.navigate(Screens.ShopScreen.route + "${foodCourt.id}")
             },
         border = BorderStroke(1.dp, colorResource(Constants.TEXT_COLOR)),
         shape = RoundedCornerShape(12.dp),
@@ -217,20 +279,22 @@ fun FoodCourtItem(
                 AsyncImage(
                     model = foodCourt.image,
                     contentDescription = "food_court_image",
-                    modifier = Modifier.fillMaxWidth().height(180.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp),
                     contentScale = ContentScale.Crop
                 )
                 Box(
                     modifier = Modifier
                         .padding(12.dp)
                         .clip(RoundedCornerShape(50.dp))
-                        .background(colorResource(Constants.GREEN_COLOR))
+                        .background(animatePendingOrderColor)
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                         .align(Alignment.BottomStart),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "Low Rush",
+                        text = text,
                         color = Color.White,
                         fontFamily = Constants.POOPINS_FONT_REGULAR
                     )
@@ -298,7 +362,11 @@ fun FoodCourtItem(
                         tint = Color.Gray,
                         modifier = Modifier.size(18.dp)
                     )
-                    Text("30 min", fontFamily = Constants.POOPINS_FONT_REGULAR,color = colorResource(Constants.TEXT_COLOR))
+                    Text(
+                        "30 min",
+                        fontFamily = Constants.POOPINS_FONT_REGULAR,
+                        color = colorResource(Constants.TEXT_COLOR)
+                    )
                 }
 
                 Row(
@@ -312,7 +380,11 @@ fun FoodCourtItem(
                         tint = Color.Gray,
                         modifier = Modifier.size(18.dp)
                     )
-                    Text("4 Outlets", fontFamily = Constants.POOPINS_FONT_REGULAR,color = colorResource(Constants.TEXT_COLOR))
+                    Text(
+                        "4 Outlets",
+                        fontFamily = Constants.POOPINS_FONT_REGULAR,
+                        color = colorResource(Constants.TEXT_COLOR)
+                    )
                 }
 
 

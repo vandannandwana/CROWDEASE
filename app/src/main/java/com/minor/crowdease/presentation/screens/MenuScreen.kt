@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -286,10 +287,7 @@ fun MenuScreen(
 
                                 ProductItem(
                                     menuViewModel = menuViewModel,
-                                    foodData = foodData,
-                                    selectedItems = selectedItems,
-                                    scaffoldState = scaffoldState,
-                                    scope = scope
+                                    foodData = foodData
                                 )
 
                             }
@@ -311,14 +309,10 @@ fun MenuScreen(
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProductItem(
     menuViewModel: MenuViewModel,
-    foodData: FoodData,
-    selectedItems: Map<FoodData, Int>,
-    scaffoldState: BottomSheetScaffoldState,
-    scope: CoroutineScope
+    foodData: FoodData
 ) {
 
     Card(
@@ -353,8 +347,9 @@ private fun ProductItem(
                         contentDescription = "",
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
+                            .fillMaxHeight()
                             .border(1.dp, Color.Black, RoundedCornerShape(12.dp))
-                            .clip(RoundedCornerShape(7.dp))
+                            .clip(RoundedCornerShape(12.dp))
                     )
                 }
 

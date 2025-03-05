@@ -1,7 +1,6 @@
 package com.minor.crowdease.navigations
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -15,12 +14,12 @@ import com.minor.crowdease.presentation.screens.MenuScreen
 import com.minor.crowdease.presentation.screens.MessageScreen
 import com.minor.crowdease.presentation.screens.OrderPlaceScreen
 import com.minor.crowdease.presentation.screens.OtpScreen
+import com.minor.crowdease.presentation.screens.ProfileEditScreen
 import com.minor.crowdease.presentation.screens.ProfileScreen
 import com.minor.crowdease.presentation.screens.SearchScreen
 import com.minor.crowdease.presentation.screens.ShopScreen
 import com.minor.crowdease.presentation.screens.SuccessScreen
 import com.minor.crowdease.presentation.viewmodels.MenuViewModel
-import com.minor.crowdease.utlis.Constants
 import com.minor.crowdease.utlis.Constants.Companion.TOKENPREF
 
 
@@ -53,6 +52,10 @@ fun Navigation(navHostController: NavHostController) {
         }
         composable(route = Screens.LoginScreen.route){
             LoginScreen(navHostController = navHostController)
+        }
+
+        composable(Screens.ProfileEditScreen.route) {
+            ProfileEditScreen(navHostController = navHostController)
         }
 
         composable(Screens.MenuScreen.route+"{shopId}/{foodCourtId}"){

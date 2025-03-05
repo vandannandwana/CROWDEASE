@@ -1,5 +1,6 @@
 package com.minor.crowdease.presentation.viewmodels
 
+import android.util.Log
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.ViewModel
 import com.minor.crowdease.data.dto.shop.ShopState
@@ -35,6 +36,22 @@ class ShopViewModel @Inject constructor(
         }
 
     }
+
+
+    suspend fun getPendingOrders(shopId: String): Int {
+        try {
+            val response = shopService.getPendingOrders(shopId)
+            return response.pendingOrders
+        }catch (e:Exception){
+            Log.d("Pending Orders", "getPendingOrders: ${e.message}")
+            return 0
+        }
+    }
+
+
+
+
+
 
 
 }

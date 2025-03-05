@@ -33,29 +33,29 @@ class MainActivity : ComponentActivity() {
             CROWDEASETheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     val ip = innerPadding
-//                    val navHostController = rememberNavController()
-//                    Navigation(navHostController = navHostController)
+                    val navHostController = rememberNavController()
+                    Navigation(navHostController = navHostController)
 
-                    val viewModel = hiltViewModel<ChatViewModel>()
-
-                    val state = viewModel.state.collectAsStateWithLifecycle().value
-
-                    if(state.isEnteringToken){
-
-                        EnterTokenDialog(
-                            token = state.remoteToken,
-                            onTokenChange = viewModel::onRemoteTokenChange,
-                            onSubmit = viewModel::onSubmitRemoteToken
-                        )
-
-                    }else{
-                        ChatScreen(
-                            messageText = state.messageText,
-                            onMessageSend = {viewModel.sendMessage(isBroadCast = false)},
-                            onMessageBroadcast = {viewModel.sendMessage(isBroadCast = true)},
-                            onMessageChange = viewModel::onMessageChange
-                        )
-                    }
+//                    val viewModel = hiltViewModel<ChatViewModel>()
+//
+//                    val state = viewModel.state.collectAsStateWithLifecycle().value
+//
+//                    if(state.isEnteringToken){
+//
+//                        EnterTokenDialog(
+//                            token = state.remoteToken,
+//                            onTokenChange = viewModel::onRemoteTokenChange,
+//                            onSubmit = viewModel::onSubmitRemoteToken
+//                        )
+//
+//                    }else{
+//                        ChatScreen(
+//                            messageText = state.messageText,
+//                            onMessageSend = {viewModel.sendMessage(isBroadCast = false)},
+//                            onMessageBroadcast = {viewModel.sendMessage(isBroadCast = true)},
+//                            onMessageChange = viewModel::onMessageChange
+//                        )
+//                    }
 
 
                 }

@@ -1,5 +1,7 @@
 package com.minor.crowdease.presentation.screens
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -28,7 +30,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +53,7 @@ import com.minor.crowdease.data.dto.shop.Shop
 import com.minor.crowdease.navigations.Screens
 import com.minor.crowdease.presentation.viewmodels.ShopViewModel
 import com.minor.crowdease.utlis.Constants
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -90,7 +99,13 @@ fun ShopScreen(
                 else if (shopState.shopCourts != null){
 
                     items(shopState.shopCourts.shops){shop->
-                        ShopItem(shopData = shop, navHostController = navHostController,foodCourtId = foodCourtId)
+                        ShopItem(
+                            shopData = shop,
+                            navHostController = navHostController,
+                            scope = scope,
+                            shopViewModel = shopViewModel,
+                            foodCourtId = foodCourtId
+                        )
                     }
 
                 }
@@ -108,9 +123,32 @@ fun ShopScreen(
 @Composable
 fun ShopItem(
     shopData: Shop,
+    shopViewModel: ShopViewModel,
+    scope: CoroutineScope,
     navHostController: NavHostController,
     foodCourtId: String
 ) {
+
+
+    var pendingOrders by rememberSaveable {
+        mutableIntStateOf(0)
+    }
+
+    var text by remember {
+        mutableStateOf("Low Rush")
+    }
+
+    val animatePendingOrderColor by animateColorAsState(
+        targetValue = if (pendingOrders<6) Color.Green else if (pendingOrders<=15) Color.Yellow else Color.Red,
+        animationSpec = tween(durationMillis = 1200)
+    )
+
+    LaunchedEffect(Unit){
+        scope.launch {
+            pendingOrders = shopViewModel.getPendingOrders(shopId = shopData.id)
+            text = if (pendingOrders<6) "Low Rush" else if (pendingOrders<=15) "Mid Rush" else "High Rush"
+        }
+    }
 
     Card(
         modifier = Modifier
@@ -144,13 +182,13 @@ fun ShopItem(
                     modifier = Modifier
                         .padding(12.dp)
                         .clip(RoundedCornerShape(50.dp))
-                        .background(colorResource(Constants.GREEN_COLOR))
+                        .background(animatePendingOrderColor)
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                         .align(Alignment.BottomStart),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        "Low Rush",
+                        text=text,
                         color = Color.White,
                         fontFamily = Constants.POOPINS_FONT_REGULAR
                     )
