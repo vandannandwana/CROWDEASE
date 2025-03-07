@@ -1,5 +1,6 @@
 package com.minor.crowdease.presentation.screens
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -22,18 +23,20 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
+import androidx.compose.material3.Divider
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,376 +53,431 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.minor.crowdease.R
+import com.minor.crowdease.data.dto.login.LoginState
+import com.minor.crowdease.data.dto.login.RegisterState
 import com.minor.crowdease.navigations.Screens
 import com.minor.crowdease.presentation.viewmodels.LoginViewModel
 import com.minor.crowdease.utlis.Constants
 import kotlinx.coroutines.launch
 
+enum class LS {
+    LOGIN,
+    SIGNUP
+}
+
 @Composable
-fun LoginScreen(navHostController:NavHostController,modifier: Modifier = Modifier) {
-
-    val loginViewModel = hiltViewModel<LoginViewModel>()
-
+fun LoginScreen(
+    navHostController: NavHostController,
+    modifier: Modifier = Modifier,
+    loginViewModel: LoginViewModel = hiltViewModel()
+) {
     val scope = rememberCoroutineScope()
-
-    var loginState = loginViewModel.loginState.collectAsStateWithLifecycle().value
-    var registerState = loginViewModel.registerState.collectAsStateWithLifecycle().value
-
-    val buttonSize by animateFloatAsState(
-        if(loginState.isLoading || registerState.isLoading) 0f else 1f,
-    )
-
-    val blue_color = colorResource(Constants.BLUE_COLOR)
-
-    var currentPage by remember {
-        mutableStateOf(LS.LOGIN)
-    }
-
     val context = LocalContext.current
+    val loginState by loginViewModel.loginState.collectAsStateWithLifecycle()
+    val registerState by loginViewModel.registerState.collectAsStateWithLifecycle()
 
-    val dynamicColorLogin by animateColorAsState(
-        targetValue = if (currentPage == LS.LOGIN) Color.White else Color.LightGray,
-        tween(200)
+    // Theme colors
+    val blueColor = colorResource(id = Constants.BLUE_COLOR)
+    val backgroundColor = colorResource(id = Constants.BACKGROUND_COLOR)
+    val textColor = colorResource(id = Constants.TEXT_COLOR)
+
+    // State
+    var currentPage by rememberSaveable { mutableStateOf(LS.LOGIN) }
+    var email by rememberSaveable { mutableStateOf("") }
+    var password by rememberSaveable { mutableStateOf("") }
+    var rePassword by rememberSaveable { mutableStateOf("") }
+    var name by rememberSaveable { mutableStateOf("") }
+
+    // Animations
+    val buttonScale by animateFloatAsState(
+        targetValue = if (loginState.isLoading || registerState.isLoading) 0f else 1f,
+        animationSpec = tween(200)
     )
-
-    val fontColorLogin by animateColorAsState(
-        targetValue = if (currentPage == LS.LOGIN) blue_color else Color.Black,
-        tween(200)
-    )
-
-    val dynamicColorRegister by animateColorAsState(
-        targetValue = if (currentPage == LS.SIGNUP) Color.White else Color.LightGray,
-        tween(200)
-    )
-
-    val fontColorRegister by animateColorAsState(
-        targetValue = if (currentPage == LS.SIGNUP) blue_color else Color.Black,
-        tween(200)
-    )
-
-    val name_height by animateDpAsState(
+    val nameFieldHeight by animateDpAsState(
         targetValue = if (currentPage == LS.LOGIN) 0.dp else 68.dp,
-        tween(200)
+        animationSpec = tween(200)
     )
 
-    var email by rememberSaveable {
-        mutableStateOf("")
-    }
-    var password by rememberSaveable {
-        mutableStateOf("")
-    }
-
-    var re_password by rememberSaveable {
-        mutableStateOf("")
-    }
-
-    var name by rememberSaveable {
-        mutableStateOf("")
-    }
+    // Dynamic colors for tabs
+    val (loginTabBackground, loginTabText) = tabColors(currentPage == LS.LOGIN, blueColor)
+    val (signupTabBackground, signupTabText) = tabColors(currentPage == LS.SIGNUP, blueColor)
 
     Scaffold(
-        modifier = Modifier.fillMaxSize()
-    ) { inp ->
-        val ip = inp
-
+        modifier = modifier.fillMaxSize()
+            .background(backgroundColor),
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(ip)
-                .background(colorResource(Constants.BACKGROUND_COLOR))
+                .padding(paddingValues)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+            // Logo
+            LogoBox()
 
-            Box(
-                modifier = Modifier
-                    .padding(1.dp)
-                    .width(100.dp)
-                    .height(100.dp)
-                    .clip(CircleShape)
-                    .background(colorResource(Constants.BLUE_COLOR)),
-                contentAlignment = Alignment.Center
-
-            ) {
-                Text(
-                    text = "CROWDEASE",
-                    fontFamily = Constants.PROTEST_FONT,
-                    color = Color.White
-                )
-            }
-
+            // Login/Signup Card
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = colorResource(Constants.BACKGROUND_COLOR)
-                )
+                colors = CardDefaults.cardColors(containerColor = backgroundColor),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
-                //Login Register Box
-                Box(
-                    modifier = Modifier
-                        .padding(12.dp)
-                        .clip(RoundedCornerShape(7.dp))
-                ) {
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.LightGray),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .weight(0.5f)
-                                .padding(vertical = 4.dp, horizontal = 4.dp)
-                                .clip(RoundedCornerShape(7.dp))
-                                .background(dynamicColorLogin)
-                                .clickable { currentPage = LS.LOGIN },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                "Login",
-                                modifier = Modifier.padding(12.dp),
-                                color = fontColorLogin,
-                                fontFamily = Constants.POOPINS_FONT_SEMI_BOLD
-                            )
-                        }
-                        Box(
-                            modifier = Modifier
-                                .weight(0.5f)
-                                .padding(vertical = 4.dp, horizontal = 4.dp)
-                                .clip(RoundedCornerShape(7.dp))
-                                .background(dynamicColorRegister)
-                                .clickable { currentPage = LS.SIGNUP },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                "Register",
-                                modifier = Modifier.padding(12.dp),
-                                color = fontColorRegister,
-                                fontFamily = Constants.POOPINS_FONT_SEMI_BOLD
-                            )
-                        }
-                    }
-
-                }
-
-                //Text Fields Section
-                if (currentPage == LS.SIGNUP) {
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp)
-                            .height(name_height),
-                        label = { Text("Full Name", color = colorResource(Constants.TEXT_COLOR)) },
-                        textStyle = TextStyle(
-                            fontFamily = Constants.POOPINS_FONT_REGULAR
-                        ),
-                        singleLine = true
-                    )
-                }
-
-
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = { email = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    label = { Text("Email", color = colorResource(Constants.TEXT_COLOR)) },
-                    textStyle = TextStyle(
-                        fontFamily = Constants.POOPINS_FONT_REGULAR
-                    ),
-                    singleLine = true
+                // Tabs
+                LoginSignupTabs(
+                    currentPage = currentPage,
+                    onPageChange = { currentPage = it },
+                    loginTabBackground = loginTabBackground,
+                    loginTabText = loginTabText,
+                    signupTabBackground = signupTabBackground,
+                    signupTabText = signupTabText
                 )
 
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    label = { Text("Password", color = colorResource(Constants.TEXT_COLOR)) },
-                    textStyle = TextStyle(
-                        fontFamily = Constants.POOPINS_FONT_REGULAR
-                    ),
-                    singleLine = true
+                // Form Fields
+                LoginSignupForm(
+                    currentPage = currentPage,
+                    name = name,
+                    onNameChange = { name = it },
+                    email = email,
+                    onEmailChange = { email = it },
+                    password = password,
+                    onPasswordChange = { password = it },
+                    rePassword = rePassword,
+                    onRePasswordChange = { rePassword = it },
+                    nameFieldHeight = nameFieldHeight,
+                    textColor = textColor
                 )
 
-                if (currentPage == LS.SIGNUP) {
-                    OutlinedTextField(
-                        value = re_password,
-                        onValueChange = { re_password = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(12.dp)
-                            .height(name_height),
-                        label = { Text("Re-Password", color = colorResource(Constants.TEXT_COLOR)) },
-                        textStyle = TextStyle(
-                            fontFamily = Constants.POOPINS_FONT_REGULAR
-                        ),
-                        singleLine = true
-                    )
-                }
-
-                Text(
-                    "Forgot password?",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    textAlign = TextAlign.End,
-                    color = colorResource(Constants.TEXT_COLOR)
-                )
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(60.dp)
-                ){
-                    if(buttonSize>0f) {
-                        Button(
-                            modifier = Modifier
-                                .fillMaxWidth(buttonSize)
-                                .padding(12.dp),
-                            shape = RoundedCornerShape(7.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = blue_color
-                            ),
-                            onClick = {
-                                if (currentPage == LS.LOGIN) {
-                                    scope.launch {
-                                        if (loginViewModel.login(email, password)) {
-                                            navHostController.navigate(Screens.MainScreen.route)
-                                            Toast.makeText(
-                                                context,
-                                                "Login Successfully",
-                                                Toast.LENGTH_LONG
-                                            ).show()
-                                        }
-                                    }
-                                } else {
-                                    scope.launch {
-                                        if (loginViewModel.register(
-                                                name,
-                                                email,
-                                                password,
-                                                "1234567890"
-                                            )
-                                        ) {
-                                            navHostController.navigate(Screens.OtpScreen.route)
-                                            Toast.makeText(
-                                                context,
-                                                "Otp Sent Successfully",
-                                                Toast.LENGTH_LONG
-                                            ).show()
-                                        }
-                                    }
-                                }
+                // Action Button
+                ActionButton(
+                    currentPage = currentPage,
+                    buttonScale = buttonScale,
+                    blueColor = blueColor,
+                    textColor = textColor,
+                    loginState = loginState,
+                    registerState = registerState,
+                    onLoginClick = {
+                        scope.launch {
+                            if (loginViewModel.login(email, password)) {
+                                navHostController.navigate(Screens.MainScreen.route)
+                                showToast(context, "Login Successful")
                             }
-                        ) {
-                            Text(if (currentPage == LS.LOGIN) "Login" else "Register", color = colorResource(Constants.TEXT_COLOR))
-                        }
-                    }else {
-                        CircularProgressIndicator()
-                        if (registerState.error != null) {
-                            Toast.makeText(
-                                context,
-                                registerState.error,
-                                Toast.LENGTH_LONG
-                            ).show()
-                            registerState = registerState.copy(error = null)
-                        }
-                        if (loginState.error != null) {
-                            Toast.makeText(
-                                context,
-                                loginState.error,
-                                Toast.LENGTH_LONG
-                            ).show()
-                            loginState = loginState.copy(error = null)
-                        }
-                    }
-
-                }
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Spacer(
-                        Modifier
-                            .fillMaxWidth()
-                            .height(1.dp)
-                            .background(colorResource(Constants.TEXT_COLOR))
-                    )
-                    Text(
-                        " Or continue with ",
-                        fontFamily = Constants.POOPINS_FONT_REGULAR,
-                        modifier = Modifier.background(colorResource(Constants.BACKGROUND_COLOR)),
-                        color = colorResource(Constants.TEXT_COLOR)
-                    )
-                }
-
-                OutlinedButton(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 12.dp),
-                    shape = RoundedCornerShape(7.dp),
-                    onClick = {
-                        Toast.makeText(context, "Google Sign in Done", Toast.LENGTH_LONG).show()
-                    }
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.google_ic),
-                        contentDescription = "google_icon",
-                        modifier = Modifier.size(34.dp)
-                    )
-                }
-
-                Text(
-                    text = buildAnnotatedString {
-                        append("By Continuing, you agree to our ")
-                        withStyle(style = SpanStyle(color = blue_color)) {
-                            append("Terms of Service")
-                        }
-                        append(" and ")
-                        withStyle(style = SpanStyle(color = blue_color)) {
-                            append("Privacy Policy ")
                         }
                     },
-                    fontFamily = Constants.POOPINS_FONT_REGULAR,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(12.dp),
-                    textAlign = TextAlign.Center,
-                    fontSize = 12.sp
+                    onRegisterClick = {
+                        scope.launch {
+                            if (loginViewModel.register(name, email, password, "1234567890")) {
+                                navHostController.navigate(Screens.OtpScreen.route)
+                                showToast(context, "OTP Sent Successfully")
+                            }
+                        }
+                    }
                 )
 
+                // Social Login and Terms
+                SocialLoginAndTerms(blueColor = blueColor, textColor = textColor)
             }
-
         }
-
     }
 
+    // Error Handling
+    loginState.error?.let { error ->
+        LaunchedEffect(error) {
+            showToast(context, error)
+            loginViewModel.clearLoginError()
+        }
+    }
+    registerState.error?.let { error ->
+        LaunchedEffect(error) {
+            showToast(context, error)
+            loginViewModel.clearRegisterError()
+        }
+    }
 }
 
+// Reusable Components
+@Composable
+private fun LogoBox() {
+    Box(
+        modifier = Modifier
+            .size(100.dp)
+            .clip(CircleShape)
+            .background(colorResource(id = Constants.BLUE_COLOR)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = "CROWDEASE",
+            fontFamily = Constants.PROTEST_FONT,
+            color = Color.White,
+            fontSize = 18.sp
+        )
+    }
+}
 
-enum class LS {
-    LOGIN,
-    SIGNUP
+@Composable
+private fun LoginSignupTabs(
+    currentPage: LS,
+    onPageChange: (LS) -> Unit,
+    loginTabBackground: Color,
+    loginTabText: Color,
+    signupTabBackground: Color,
+    signupTabText: Color
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp)
+            .clip(RoundedCornerShape(7.dp))
+            .background(Color.LightGray),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        TabButton(
+            text = "Login",
+            isSelected = currentPage == LS.LOGIN,
+            backgroundColor = loginTabBackground,
+            textColor = loginTabText,
+            onClick = { onPageChange(LS.LOGIN) },
+            modifier = Modifier.weight(0.5f)
+        )
+        TabButton(
+            text = "Register",
+            isSelected = currentPage == LS.SIGNUP,
+            backgroundColor = signupTabBackground,
+            textColor = signupTabText,
+            onClick = { onPageChange(LS.SIGNUP) },
+            modifier = Modifier.weight(0.5f)
+        )
+    }
+}
+
+@Composable
+private fun TabButton(
+    text: String,
+    isSelected: Boolean,
+    backgroundColor: Color,
+    textColor: Color,
+    modifier: Modifier,
+    onClick: () -> Unit
+) {
+    Box(
+        modifier = modifier
+            .padding(4.dp)
+            .clip(RoundedCornerShape(7.dp))
+            .background(backgroundColor)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(12.dp),
+            color = textColor,
+            fontFamily = Constants.POOPINS_FONT_SEMI_BOLD
+        )
+    }
+}
+
+@Composable
+private fun LoginSignupForm(
+    currentPage: LS,
+    name: String,
+    onNameChange: (String) -> Unit,
+    email: String,
+    onEmailChange: (String) -> Unit,
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    rePassword: String,
+    onRePasswordChange: (String) -> Unit,
+    nameFieldHeight: Dp,
+    textColor: Color
+) {
+    if (currentPage == LS.SIGNUP) {
+        OutlinedTextField(
+            value = name,
+            onValueChange = onNameChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+                .height(nameFieldHeight),
+            label = { Text("Full Name", color = textColor) },
+            textStyle = TextStyle(fontFamily = Constants.POOPINS_FONT_REGULAR),
+            singleLine = true
+        )
+    }
+    OutlinedTextField(
+        value = email,
+        onValueChange = onEmailChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+        label = { Text("Email", color = textColor) },
+        textStyle = TextStyle(fontFamily = Constants.POOPINS_FONT_REGULAR),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+    )
+    OutlinedTextField(
+        value = password,
+        onValueChange = onPasswordChange,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+        label = { Text("Password", color = textColor) },
+        textStyle = TextStyle(fontFamily = Constants.POOPINS_FONT_REGULAR),
+        singleLine = true,
+        visualTransformation = PasswordVisualTransformation(),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+    )
+    if (currentPage == LS.SIGNUP) {
+        OutlinedTextField(
+            value = rePassword,
+            onValueChange = onRePasswordChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp)
+                .height(nameFieldHeight),
+            label = { Text("Re-Password", color = textColor) },
+            textStyle = TextStyle(fontFamily = Constants.POOPINS_FONT_REGULAR),
+            singleLine = true,
+            visualTransformation = PasswordVisualTransformation(),
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+        )
+    }
+    Text(
+        text = "Forgot password?",
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+        textAlign = TextAlign.End,
+        color = textColor
+    )
+}
+
+@Composable
+private fun ActionButton(
+    currentPage: LS,
+    buttonScale: Float,
+    blueColor: Color,
+    textColor: Color,
+    loginState: LoginState, // Assume this is your state class
+    registerState: RegisterState, // Assume this is your state class
+    onLoginClick: () -> Unit,
+    onRegisterClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp),
+        horizontalArrangement = Arrangement.Center,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        if (buttonScale > 0f) {
+            Button(
+                onClick = if (currentPage == LS.LOGIN) onLoginClick else onRegisterClick,
+                modifier = Modifier
+                    .fillMaxWidth(buttonScale)
+                    .padding(12.dp),
+                shape = RoundedCornerShape(7.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = blueColor)
+            ) {
+                Text(
+                    text = if (currentPage == LS.LOGIN) "Login" else "Register",
+                    color = textColor
+                )
+            }
+        } else {
+            CircularProgressIndicator()
+        }
+    }
+}
+
+@Composable
+private fun SocialLoginAndTerms(blueColor: Color, textColor: Color) {
+    DividerWithText(text = "Or continue with", color = textColor)
+    OutlinedButton(
+        onClick = { /* Handle Google Sign-In */ },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 12.dp),
+        shape = RoundedCornerShape(7.dp)
+    ) {
+        Image(
+            painter = painterResource(R.drawable.google_ic),
+            contentDescription = "Google Sign-In",
+            modifier = Modifier.size(34.dp)
+        )
+    }
+    TermsText(blueColor = blueColor, textColor = textColor)
+}
+
+// Helper Functions
+@Composable
+private fun DividerWithText(text: String, color: Color) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Divider(color = color)
+        Text(
+            text = text,
+            fontFamily = Constants.POOPINS_FONT_REGULAR,
+            modifier = Modifier
+                .background(colorResource(id = Constants.BACKGROUND_COLOR))
+                .padding(horizontal = 8.dp),
+            color = color
+        )
+    }
+}
+
+@Composable
+private fun TermsText(blueColor: Color, textColor: Color) {
+    Text(
+        text = buildAnnotatedString {
+            append("By continuing, you agree to our ")
+            withStyle(style = SpanStyle(color = blueColor)) {
+                append("Terms of Service")
+            }
+            append(" and ")
+            withStyle(style = SpanStyle(color = blueColor)) {
+                append("Privacy Policy")
+            }
+        },
+        fontFamily = Constants.POOPINS_FONT_REGULAR,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(12.dp),
+        textAlign = TextAlign.Center,
+        fontSize = 12.sp,
+        color = textColor
+    )
+}
+
+@Composable
+private fun tabColors(isSelected: Boolean, blueColor: Color): Pair<Color, Color> {
+    val background by animateColorAsState(
+        targetValue = if (isSelected) Color.White else Color.LightGray,
+        animationSpec = tween(200)
+    )
+    val text by animateColorAsState(
+        targetValue = if (isSelected) blueColor else Color.Black,
+        animationSpec = tween(200)
+    )
+    return background to text
+}
+
+private fun showToast(context: Context, message: String) {
+    Toast.makeText(context, message, Toast.LENGTH_LONG).show()
 }

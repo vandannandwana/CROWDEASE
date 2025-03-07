@@ -1,6 +1,8 @@
 package com.minor.crowdease.presentation.screens
+import android.util.Log
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateIntAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,7 +22,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Notifications
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
@@ -28,53 +29,35 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.minor.crowdease.data.dto.food_court.FoodCourtData
-import com.minor.crowdease.data.dto.food_court.FoodCourtDto
 import com.minor.crowdease.presentation.viewmodels.FoodCourtViewModel
 import com.minor.crowdease.presentation.viewmodels.HomeViewModel
 import com.minor.crowdease.utlis.Constants
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 @Composable
-fun HomeScreen(modifier: Modifier = Modifier, navHostController: NavHostController) {
-    HomeScreenPreview()
-}
-
-@Composable
-private fun HomeScreenPreview() {
-
+fun HomeScreen(
+    modifier: Modifier = Modifier,
+    navHostController: NavHostController
+) {
     val foodCourtViewModel = hiltViewModel<FoodCourtViewModel>()
+    val foodCourtsState by foodCourtViewModel.foodCourtState.collectAsStateWithLifecycle()
 
-    val foodCourts = foodCourtViewModel.foodCourtState.collectAsStateWithLifecycle().value
-
-    val homeViewModel = hiltViewModel<HomeViewModel>()
-
-    val scope = rememberCoroutineScope()
-
-    Scaffold(modifier = Modifier.fillMaxSize()) {
+    Scaffold(modifier = modifier.fillMaxSize()) { paddingValues ->
         LazyColumn(
             modifier = Modifier
-                .padding(it)
+                .padding(paddingValues)
                 .fillMaxSize()
         ) {
-
             item {
                 Row(
                     modifier = Modifier
@@ -83,22 +66,20 @@ private fun HomeScreenPreview() {
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
-                    Column(modifier = Modifier) {
+                    Column {
                         Text(
-                            "Parul University",
+                            text = "Parul University",
                             fontFamily = Constants.POOPINS_FONT_REGULAR,
                             color = colorResource(Constants.BLUE_COLOR),
                             fontSize = 32.sp
                         )
                         Text(
-                            "Food Court",
+                            text = "Food Court",
                             fontFamily = Constants.POOPINS_FONT_REGULAR,
                             fontSize = 18.sp,
                             color = colorResource(Constants.TEXT_COLOR)
                         )
                     }
-
                     Box(
                         modifier = Modifier
                             .size(34.dp)
@@ -106,146 +87,96 @@ private fun HomeScreenPreview() {
                             .background(Color.LightGray),
                         contentAlignment = Alignment.Center
                     ) {
-
                         Icon(
                             imageVector = Icons.Outlined.Notifications,
                             contentDescription = "notification_icon"
                         )
-
                     }
-
                 }
 
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(2.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color.LightGray
-                    ),
-                    elevation = CardDefaults.cardElevation(
-                        defaultElevation = 7.dp
-                    )
+                    colors = CardDefaults.cardColors(containerColor = Color.LightGray),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 7.dp)
                 ) {}
-                Spacer(Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+
                 Box(modifier = Modifier.padding(12.dp)) {
                     Column {
                         Text(
-                            "Hey There!",
+                            text = "Hey There!",
                             fontFamily = Constants.POOPINS_FONT_SEMI_BOLD,
                             fontSize = 34.sp,
                             color = colorResource(Constants.TEXT_COLOR)
                         )
                         Text(
-                            "What would you like  to eat today?",
+                            text = "What would you like to eat today?",
                             fontFamily = Constants.POOPINS_FONT_REGULAR,
                             fontSize = 18.sp,
                             color = colorResource(Constants.TEXT_COLOR)
                         )
-
                         Spacer(modifier = Modifier.height(12.dp))
-
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            shape = RoundedCornerShape(7.dp),
-                            colors = CardDefaults.cardColors(
-                                containerColor = colorResource(Constants.DARK_GREY)
-                            ),
-                            elevation = CardDefaults.cardElevation(
-                                defaultElevation = 7.dp
-                            )
-                        ) {
-                            Box(modifier = Modifier
-                                .fillMaxWidth()
-                                .height(300.dp)
-                                .padding(4.dp)) {
-                                LazyColumn(modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(8.dp)) {
-                                    item {
-                                        Text(
-                                            "Current Rush Status",
-                                            fontFamily = Constants.POOPINS_FONT_REGULAR,
-                                            color = colorResource(Constants.TEXT_COLOR)
-                                        )
-
-                                    }
-
-                                    if(foodCourts.isLoading){
-                                        item{
-                                            CircularProgressIndicator()
-                                        }
-                                    }
-                                    else if (foodCourts.foodCourts != null){
-                                        items(foodCourts.foodCourts.data){foodCourt->
-                                            PendingOrderView(
-                                                homeViewModel = homeViewModel,
-                                                scope= scope,
-                                                foodCourt = foodCourt
-                                            )
-
-                                        }
-                                    }
-
-
-                                }
-
-                            }
-                        }
                     }
                 }
-
-
             }
-
-
+            // Move food court items here to avoid nested LazyColumn
+            foodCourtsState.foodCourts?.data?.let { foodCourts ->
+                items(foodCourts) { foodCourt ->
+                    PendingOrderView(
+                        foodCourt = foodCourt,
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                    )
+                }
+            }
         }
-
     }
-
 }
 
 
 @Composable
-fun PendingOrderView(homeViewModel: HomeViewModel,scope: CoroutineScope,foodCourt:FoodCourtData) {
+fun PendingOrderView(
+    foodCourt: FoodCourtData,
+    modifier: Modifier = Modifier
+) {
+    val homeViewModel = hiltViewModel<HomeViewModel>()
+    val pendingOrdersState by homeViewModel.getPendingOrdersState(foodCourt.id).collectAsStateWithLifecycle()
 
-    var pendingOrders by rememberSaveable {
-        mutableIntStateOf(0)
+    LaunchedEffect(pendingOrdersState){
+        Log.d("VANDANPENDING", "PendingOrderView of ${foodCourt.name}: $pendingOrdersState")
     }
 
-    val animatePendingOrderColor by animateColorAsState(
-        targetValue = if (pendingOrders<6) Color.Green else if (pendingOrders<=15) Color.Yellow else Color.Red,
-        animationSpec = tween(durationMillis = 1200)
+    val animatedProgress by animateFloatAsState(
+        targetValue = (pendingOrdersState * 4) / 100f,
+        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing),
+        label = "progressAnimation"
     )
 
-    val animatePendingOrders by animateIntAsState(
-        targetValue = pendingOrders,
-        label = "pendingOrders",
-        animationSpec = tween(durationMillis = 700)
+    val animatedColor by animateColorAsState(
+        targetValue = when {
+            pendingOrdersState < 6 -> Color.Green
+            pendingOrdersState <= 15 -> Color.Yellow
+            else -> Color.Red
+        },
+        animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing),
+        label = "colorAnimation"
     )
 
-    LaunchedEffect(Unit){
-        scope.launch {
-            pendingOrders = homeViewModel.getPendingOrders(foodCourt.id)
-        }
+    Column(modifier = modifier) {
+        Text(
+            text = foodCourt.name,
+            fontFamily = Constants.POOPINS_FONT_REGULAR,
+            color = colorResource(Constants.GREEN_COLOR)
+        )
+        LinearProgressIndicator(
+            progress = { animatedProgress },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(10.dp)
+                .clip(RoundedCornerShape(7.dp)),
+            color = animatedColor,
+            trackColor = Color(0xFF22C45E).copy(alpha = 0.2f),
+        )
     }
-
-
-    Text(
-        foodCourt.name,
-        fontFamily = Constants.POOPINS_FONT_REGULAR,
-        color = colorResource(Constants.GREEN_COLOR)
-    )
-    LinearProgressIndicator(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(10.dp)
-            .clip(RoundedCornerShape(7.dp)),
-        progress = { (animatePendingOrders*4)/100f },
-
-        color = animatePendingOrderColor,
-        trackColor = Color(0xFF22C45E).copy(alpha = 0.2f)
-    )
-
 }

@@ -2,6 +2,8 @@ package com.minor.crowdease.presentation.screens
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -28,97 +30,87 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.exyte.animatednavbar.AnimatedNavigationBar
+import com.exyte.animatednavbar.animation.balltrajectory.Straight
 import com.exyte.animatednavbar.animation.indendshape.ShapeCornerRadius
 import com.exyte.animatednavbar.utils.noRippleClickable
 import com.minor.crowdease.utlis.Constants
 import kotlinx.coroutines.launch
 
 enum class NavigationBarItems(val icon: ImageVector) {
-
     Person(icon = Icons.Default.Home),
     Search(icon = Icons.Default.Search),
     Profile(icon = Icons.Default.Person)
-
 }
 
 @Composable
-fun MainScreen(modifier: Modifier = Modifier, navHostController: NavHostController) {
-    var currentPage by rememberSaveable { mutableIntStateOf(0) }
-    val navBarItems = remember { NavigationBarItems.entries.toTypedArray() }
-    val pagerState = rememberPagerState { NavigationBarItems.entries.size }
-    val scope = rememberCoroutineScope()
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    navHostController: NavHostController
+) {
+    val navBarItems = NavigationBarItems.entries // No need for remember, it's static
+    val pagerState = rememberPagerState(initialPage = 0) { navBarItems.size }
+    val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(currentPage) {
-        scope.launch {
-            pagerState.scrollToPage(
-                currentPage
-            )
+    Box(modifier = modifier.fillMaxSize()) {
+        HorizontalPager(
+            state = pagerState,
+            userScrollEnabled = true // Consider enabling if swipe is desired
+        ) { page ->
+            when (navBarItems[page]) { // Use enum instead of indices
+                NavigationBarItems.Person -> HomeScreen(navHostController = navHostController)
+                NavigationBarItems.Search -> SearchScreen(navHostController = navHostController)
+                NavigationBarItems.Profile -> ProfileScreen(navHostController = navHostController)
+            }
         }
-    }
 
-    Box(modifier = Modifier.fillMaxSize()){
-
-        HorizontalPager(pagerState, userScrollEnabled = false) { page->
-
-            when(page){
-                0 -> {
-                    HomeScreen(navHostController = navHostController)
-                }
-                1->{
-                    SearchScreen(navHostController = navHostController)
-                }
-                2->{
-                    ProfileScreen(navHostController = navHostController)
-                }
-                else->{
-                    HomeScreen(navHostController = navHostController)
+        BottomNavigationBar(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            currentPage = pagerState.currentPage,
+            navBarItems = navBarItems.toTypedArray(),
+            onItemClick = { index ->
+                coroutineScope.launch {
+                    pagerState.animateScrollToPage(index) // Smooth scrolling
                 }
             }
-
-        }
-
-        BottomNavigationBar(modifier = Modifier.align(Alignment.BottomCenter), currentPage = currentPage, navBarItems = navBarItems) {
-            currentPage = it
-        }
-
+        )
     }
-
 }
 
 @Composable
 fun BottomNavigationBar(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     currentPage: Int,
     navBarItems: Array<NavigationBarItems>,
     onItemClick: (page: Int) -> Unit
 ) {
-
     AnimatedNavigationBar(
-        selectedIndex = currentPage, modifier = modifier
-            .padding(24.dp),
+        selectedIndex = currentPage,
+        modifier = modifier.padding(24.dp),
         ballColor = colorResource(Constants.BLUE_COLOR),
-        ballAnimation = com.exyte.animatednavbar.animation.balltrajectory.Straight(tween(700)),
+        ballAnimation = Straight(tween(400, easing = FastOutSlowInEasing)), // Faster animation
         cornerRadius = ShapeCornerRadius(60f, 60f, 60f, 60f)
     ) {
-
         navBarItems.forEach { item ->
-
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
-                    .noRippleClickable { onItemClick(item.ordinal) },
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null // Custom ripple if needed
+                    ) { onItemClick(item.ordinal) },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = item.icon,
-                    contentDescription = null,
-                    tint = if (currentPage == item.ordinal) colorResource(Constants.BLUE_COLOR) else colorResource(Constants.GREY)
+                    contentDescription = item.name, // Accessibility improvement
+                    tint = if (currentPage == item.ordinal) {
+                        colorResource(Constants.BLUE_COLOR)
+                    } else {
+                        colorResource(Constants.GREY)
+                    }
                 )
             }
-
         }
-
     }
-
 }

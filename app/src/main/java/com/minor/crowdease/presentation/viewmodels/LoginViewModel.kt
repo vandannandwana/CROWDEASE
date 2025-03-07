@@ -88,12 +88,12 @@ class LoginViewModel @Inject constructor(
             editor.putString(TOKENPREF,result.token)
             editor.apply()
 
-            Log.d("VANDAN LOGIN",result.toString())
+            Log.d("VANDAN REGISTER",result.toString())
             _registerState.value = RegisterState(loginResponse = result, isLoading = false)
             getUserData(token = result.token)
             return true
         }catch (e:Exception){
-            Log.d("VANDAN LOGIN",e.toString())
+            Log.d("VANDAN REGISTER",e.toString())
             _registerState.value = RegisterState(error = e.message, isLoading = false)
             return false
         }
@@ -221,6 +221,14 @@ class LoginViewModel @Inject constructor(
             e.printStackTrace()
         }
         return null
+    }
+
+    fun clearLoginError() {
+        _loginState.value = _loginState.value.copy(error = null)
+    }
+
+    fun clearRegisterError() {
+        _registerState.value = _registerState.value.copy(error = null)
     }
 
 
