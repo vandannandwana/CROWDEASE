@@ -26,7 +26,7 @@ class Constants {
         val STUDENT_NAME = "STUDENT_NAME"
         val STUDENT_EMAIL = "STUDENT_EMAIL"
         val STUDENT_PHONE_NUMBER = "STUDENT_PHONE_NUMBER"
-        val BASE_URL = "http://65.2.122.70:5000"
+        val BASE_URL = "YOUR SERVER ADDRESS"
 
         @Composable
         fun getCurrency(amount: Int): String {
