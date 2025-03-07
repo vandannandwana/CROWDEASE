@@ -1,7 +1,6 @@
 # Screenshots of Application
 <html>
   <body>
-    <div>
       <img src="https://github.com/user-attachments/assets/87a62cb4-2fb0-46e5-a52b-302bb124b247" alt="" width = 220px/>
       <img src="https://github.com/user-attachments/assets/2cae68e8-8514-4edd-ada9-21422c191d49" alt="" width = 220px/>
       <img src="https://github.com/user-attachments/assets/294d9db7-52ea-4522-ad36-6937d2b8f43d" alt="" width = 220px/>
@@ -11,9 +10,6 @@
       <img src="https://github.com/user-attachments/assets/49db91c5-b632-4efb-bb64-53cce940a867" alt="" width = 220px/>
       <img src="https://github.com/user-attachments/assets/825a0093-f095-47e9-82d8-8b15f159809a" alt="" width = 220px/>
       <img src="https://github.com/user-attachments/assets/3dcfc37f-e431-4632-b86a-5cbf306302f9" alt="" width = 220px/>
-      
-    </div>
-    
   </body>
   
 </html>
