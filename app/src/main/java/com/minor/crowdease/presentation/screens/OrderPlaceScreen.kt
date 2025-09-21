@@ -1,11 +1,12 @@
 package com.minor.crowdease.presentation.screens
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -18,15 +19,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Paid
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -42,7 +44,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
@@ -61,20 +62,20 @@ import com.minor.crowdease.presentation.viewmodels.OrdersViewModel
 import com.minor.crowdease.utlis.Constants
 import kotlinx.coroutines.launch
 
+@SuppressLint("MutableCollectionMutableState")
 @Composable
 fun OrderPlaceScreen(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
     menuViewModel: MenuViewModel,
-    foodCourtId:String,
-    shopId:String
+    foodCourtId: String,
+    shopId: String
 ) {
-
     val context = LocalContext.current
-
     val scope = rememberCoroutineScope()
-
     val ordersViewModel = hiltViewModel<OrdersViewModel>()
+    val orderPlaceState = ordersViewModel.placedOrderState.collectAsStateWithLifecycle().value
+    val makePaymentState = ordersViewModel.makePaymentState.collectAsStateWithLifecycle().value
 
     var totalAmountOfSelectedItems by remember {
         mutableIntStateOf(0)
@@ -89,78 +90,69 @@ fun OrderPlaceScreen(
         val items = selectedItems.toList()
         totalAmountOfSelectedItems = items.sumOf { Integer.parseInt(it.first.price) * it.second }
         for (item in items) {
-            val i  = item.first
-            placedOrders.add(PlaceOrderItemDto(
-                price = i.price.toDouble(),
-                menuItemId = i.id,
-                quantity = item.second
-            ))
-        }
-    }
-
-    var paymentStatus by remember {
-        mutableStateOf("")
-    }
-
-    val paymentLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) {result->
-
-        if(result.resultCode == Activity.RESULT_OK){
-
-            val paymentId = result.data?.getStringExtra("paymentId")
-            Log.d("VANDANPAY", "$paymentId ")
-            if(paymentId != null){
-
-                val placedOrder = PlaceOrderDto(
-                    shopId = shopId,
-                    foodCourtId = foodCourtId,
-                    paymentMethod = "UPI",
-                    items =placedOrders,
-                    totalAmount = totalAmountOfSelectedItems.toDouble()
+            val i = item.first
+            placedOrders.add(
+                PlaceOrderItemDto(
+                    price = i.price.toDouble(),
+                    menuItemId = i.id,
+                    quantity = item.second
                 )
-                scope.launch{
-                    ordersViewModel.placeOrder(placeOrderDto = placedOrder)
-                }
-                navHostController.navigate(Screens.SuccessScreen.route+"{$paymentId}")
-            }
-        }else{
-            paymentStatus = "Failed"
+            )
         }
-
-
     }
+
+    LaunchedEffect(makePaymentState.data) {
+        if (makePaymentState.error != null) {
+            Toast.makeText(context, makePaymentState.error, Toast.LENGTH_SHORT).show()
+            navHostController.navigate(Screens.SuccessScreen.route + "/false")
+        }
+        if (makePaymentState.data != null) {
+            navHostController.navigate(Screens.SuccessScreen.route + "/true")
+        }
+    }
+
+    val paymentLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+            //clear food cart
+            menuViewModel.clearCart()
+
+            if (result.resultCode == Activity.RESULT_OK) {
+                val paymentId = result.data?.getStringExtra("paymentId")
+                Log.d("VANDANPAY", "$paymentId")
+                if (paymentId != null) {
+                    val placedOrder = PlaceOrderDto(
+                        shopId = shopId,
+                        foodCourtId = foodCourtId,
+                        paymentMethod = "UPI",
+                        items = placedOrders,
+                        totalAmount = totalAmountOfSelectedItems.toDouble()
+                    )
+                    scope.launch {
+                        ordersViewModel.placeOrder(
+                            placeOrderDto = placedOrder,
+                            paymentId = paymentId
+                        )
+                    }
+                }
+            } else {
+                Toast.makeText(context, "Payment Failed", Toast.LENGTH_SHORT).show()
+            }
+
+
+        }
 
 
     val paymentMethods = listOf(
         PaymentMethod(
-            name = "GPay",
-            icon = R.drawable.gpay,
+            name = "Razor Pay",
+            icon = R.drawable.razorpay,
             onClick = {
-                val intent = Intent(context,PaymentActivity::class.java)
+                val intent = Intent(context, PaymentActivity::class.java)
                 intent.putExtra("totalAmount", totalAmountOfSelectedItems)
                 paymentLauncher.launch(intent)
             }
-        ),
-        PaymentMethod(
-            name = "Paytm",
-            icon = R.drawable.paytm,
-            onClick = {
-
-                val intent = Intent(context, PaymentActivity::class.java)
-                intent.putExtra("totalAmount", totalAmountOfSelectedItems)
-                context.startActivity(intent)
-            }
-        ),
-        PaymentMethod(
-            name = "PhonePe",
-            icon = R.drawable.phonepe,
-            onClick = {
-                val intent = Intent(context, PaymentActivity::class.java)
-                intent.putExtra("totalAmount", totalAmountOfSelectedItems)
-                context.startActivity(intent)
-            }
         )
     )
-
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -172,6 +164,18 @@ fun OrderPlaceScreen(
                 .padding(it),
             contentAlignment = Alignment.TopCenter
         ) {
+
+            if (orderPlaceState.isLoading || makePaymentState.isLoading) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Black.copy(alpha = 0.2f)),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            }
 
             Column(modifier = Modifier.fillMaxSize()) {
                 Row(
@@ -192,7 +196,7 @@ fun OrderPlaceScreen(
                     ) {
                         Text(
                             text = "Close",
-                            fontSize = 18.sp,
+                            fontSize = 14.sp,
                             fontFamily = Constants.POOPINS_FONT_REGULAR,
                             color = Color.White,
                             modifier = Modifier.padding(vertical = 4.dp, horizontal = 8.dp)
@@ -201,7 +205,7 @@ fun OrderPlaceScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = "Bill Total: ${Constants.getCurrency(totalAmountOfSelectedItems)}",
-                        fontSize = 18.sp,
+                        fontSize = 14.sp,
                         fontFamily = Constants.POOPINS_FONT_SEMI_BOLD,
                         color = colorResource(Constants.TEXT_COLOR)
                     )
@@ -216,14 +220,14 @@ fun OrderPlaceScreen(
                     item {
                         Text(
                             text = "Payment Methods",
-                            fontSize = 22.sp,
+                            fontSize = 18.sp,
                             color = colorResource(Constants.GREY),
                             fontFamily = Constants.POOPINS_FONT_REGULAR,
                             modifier = Modifier.padding(24.dp)
                         )
                     }
 
-                    items(paymentMethods){method->
+                    items(paymentMethods) { method ->
 
                         PaymentMethodItem(paymentMethod = method)
 
@@ -267,20 +271,25 @@ fun PaymentMethodItem(paymentMethod: PaymentMethod) {
             contentDescription = "profile_icon",
             modifier = Modifier
                 .weight(0.2f)
-                .height(42.dp),
+                .height(32.dp),
             tint = colorResource(Constants.TEXT_COLOR)
         )
 
         Text(
             text = paymentMethod.name,
+            fontSize = 14.sp,
             fontFamily = Constants.POOPINS_FONT_SEMI_BOLD,
-            modifier = Modifier.weight(0.6f)
+            modifier = Modifier
+                .weight(0.6f)
+                .size(28.dp)
         )
 
         Icon(
             imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
             contentDescription = "profile_icon",
-            modifier = Modifier.weight(0.2f),
+            modifier = Modifier
+                .weight(0.2f)
+                .size(28.dp),
         )
     }
 }

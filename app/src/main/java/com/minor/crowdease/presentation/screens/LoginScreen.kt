@@ -13,13 +13,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,7 +37,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -88,9 +85,10 @@ fun LoginScreen(
     val registerState by loginViewModel.registerState.collectAsStateWithLifecycle()
 
     // Theme colors
-    val blueColor = colorResource(id = Constants.BLUE_COLOR)
+    val buttonColor = colorResource(id = Constants.ORANGE_COLOR)
     val backgroundColor = colorResource(id = Constants.BACKGROUND_COLOR)
     val textColor = colorResource(id = Constants.TEXT_COLOR)
+    val button_textColor = colorResource(id = Constants.BUTTON_TEXT_COLOR)
 
     // State
     var currentPage by rememberSaveable { mutableStateOf(LS.LOGIN) }
@@ -110,8 +108,8 @@ fun LoginScreen(
     )
 
     // Dynamic colors for tabs
-    val (loginTabBackground, loginTabText) = tabColors(currentPage == LS.LOGIN, blueColor)
-    val (signupTabBackground, signupTabText) = tabColors(currentPage == LS.SIGNUP, blueColor)
+    val (loginTabBackground, loginTabText) = tabColors(currentPage == LS.LOGIN, buttonColor)
+    val (signupTabBackground, signupTabText) = tabColors(currentPage == LS.SIGNUP, buttonColor)
 
     Scaffold(
         modifier = modifier.fillMaxSize()
@@ -165,8 +163,8 @@ fun LoginScreen(
                 ActionButton(
                     currentPage = currentPage,
                     buttonScale = buttonScale,
-                    blueColor = blueColor,
-                    textColor = textColor,
+                    blueColor = buttonColor,
+                    textColor = button_textColor,
                     loginState = loginState,
                     registerState = registerState,
                     onLoginClick = {
@@ -188,7 +186,7 @@ fun LoginScreen(
                 )
 
                 // Social Login and Terms
-                SocialLoginAndTerms(blueColor = blueColor, textColor = textColor)
+                SocialLoginAndTerms(blueColor = buttonColor, textColor = textColor)
             }
         }
     }
@@ -215,7 +213,7 @@ private fun LogoBox() {
         modifier = Modifier
             .size(100.dp)
             .clip(CircleShape)
-            .background(colorResource(id = Constants.BLUE_COLOR)),
+            .background(colorResource(id = Constants.ORANGE_COLOR)),
         contentAlignment = Alignment.Center
     ) {
         Text(

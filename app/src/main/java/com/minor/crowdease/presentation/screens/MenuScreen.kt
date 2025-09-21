@@ -21,10 +21,9 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Paid
 import androidx.compose.material.icons.filled.RemoveCircle
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.StarRate
+import androidx.compose.material.icons.filled.Timer
 import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material3.BottomSheetScaffold
-import androidx.compose.material3.BottomSheetScaffoldState
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -38,6 +37,7 @@ import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -49,10 +49,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
@@ -60,7 +60,6 @@ import com.minor.crowdease.data.dto.food_court.FoodData
 import com.minor.crowdease.navigations.Screens
 import com.minor.crowdease.presentation.viewmodels.MenuViewModel
 import com.minor.crowdease.utlis.Constants
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,7 +67,7 @@ import kotlinx.coroutines.launch
 fun MenuScreen(
     modifier: Modifier = Modifier,
     navHostController: NavHostController,
-    foodCourtId:String,
+    foodCourtId: String,
     shopId: String,
     menuViewModel: MenuViewModel
 ) {
@@ -78,7 +77,7 @@ fun MenuScreen(
 
     val selectedItems = menuViewModel.selectedItems.collectAsStateWithLifecycle().value
 
-    LaunchedEffect(Unit){
+    LaunchedEffect(Unit) {
         scope.launch {
             menuViewModel.getFoodData(shopId)
         }
@@ -87,7 +86,7 @@ fun MenuScreen(
     val scaffoldState = rememberBottomSheetScaffoldState()
 
     var totalAmountOfSelectedItems by remember {
-        mutableStateOf(0)
+        mutableIntStateOf(0)
     }
 
     var searchQuery by remember {
@@ -97,11 +96,11 @@ fun MenuScreen(
     LaunchedEffect(selectedItems.toList()) {
         val items = selectedItems.toList()
         totalAmountOfSelectedItems = items.sumOf { Integer.parseInt(it.first.price) * it.second }
-        if(selectedItems.isEmpty()){
+        if (selectedItems.isEmpty()) {
             scope.launch {
                 scaffoldState.bottomSheetState.partialExpand()
             }
-        }else if (selectedItems.size >0){
+        } else if (selectedItems.size > 0) {
             scaffoldState.bottomSheetState.expand()
         }
     }
@@ -160,24 +159,32 @@ fun MenuScreen(
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
                             Text(
-                                "${selectedItems.size} | items ${Constants.getCurrency(totalAmountOfSelectedItems)}",
+                                "${selectedItems.size} | items ${
+                                    Constants.getCurrency(
+                                        totalAmountOfSelectedItems
+                                    )
+                                }",
                                 fontFamily = Constants.POOPINS_FONT_SEMI_BOLD,
+                                fontSize = 14.sp,
                                 color = colorResource(Constants.TEXT_COLOR)
                             )
                             Row(
                                 modifier = Modifier.clickable {
-                                  navHostController.navigate(Screens.OrderPlaceScreen.route+"${shopId}/${foodCourtId}")
+                                    navHostController.navigate(Screens.OrderPlaceScreen.route + "${shopId}/${foodCourtId}")
                                 },
+                                verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Text(
                                     "Pay",
                                     fontFamily = Constants.POOPINS_FONT_SEMI_BOLD,
+                                    fontSize = 14.sp,
                                     color = colorResource(Constants.TEXT_COLOR)
                                 )
                                 Icon(
                                     imageVector = Icons.Default.Paid,
                                     contentDescription = "",
+                                    modifier = Modifier.size(20.dp),
                                     tint = colorResource(Constants.TEXT_COLOR)
                                 )
                             }
@@ -190,7 +197,8 @@ fun MenuScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(it)
+                    .padding(it),
+                contentAlignment = Alignment.TopCenter
             ) {
                 LazyColumn {
                     item {
@@ -204,16 +212,16 @@ fun MenuScreen(
 
                             Column(modifier = Modifier) {
                                 Text(
-                                    "UR  CHOICE",
+                                    "MENU",
                                     fontFamily = Constants.POOPINS_FONT_REGULAR,
-                                    color = colorResource(Constants.BLUE_COLOR),
-                                    fontSize = 32.sp
+                                    color = colorResource(Constants.ORANGE_COLOR),
+                                    fontSize = 18.sp
                                 )
                             }
 
                             Box(
                                 modifier = Modifier
-                                    .size(34.dp)
+                                    .size(28.dp)
                                     .clip(RoundedCornerShape(7.dp))
                                     .background(Color.LightGray),
                                 contentAlignment = Alignment.Center
@@ -247,14 +255,22 @@ fun MenuScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(12.dp)
-                                .border(1.dp, colorResource(Constants.TEXT_COLOR), RoundedCornerShape(18.dp)),
+                                .border(
+                                    1.dp,
+                                    colorResource(Constants.TEXT_COLOR),
+                                    RoundedCornerShape(18.dp)
+                                ),
                             value = searchQuery,
-                            textStyle = TextStyle(fontFamily = Constants.POOPINS_FONT_REGULAR),
+                            textStyle = TextStyle(
+                                fontFamily = Constants.POOPINS_FONT_REGULAR,
+                                fontSize = 14.sp
+                            ),
                             placeholder = {
                                 Text(
                                     "Search Your Favourite Item...",
                                     fontFamily = Constants.POOPINS_FONT_REGULAR,
-                                    color = colorResource(Constants.TEXT_COLOR)
+                                    color = colorResource(Constants.TEXT_COLOR),
+                                    fontSize = 14.sp
                                 )
                             },
                             onValueChange = { searchQuery = it },
@@ -270,30 +286,33 @@ fun MenuScreen(
                                     tint = Color.LightGray,
                                     contentDescription = "search_icn",
                                     modifier = Modifier
-                                        .size(32.dp)
+                                        .size(28.dp)
                                         .padding(start = 2.dp)
                                 )
                             }
                         )
                     }
 
-                    if(foodDataState.isLoading){
+                    if (foodDataState.isLoading) {
                         item {
-                            CircularProgressIndicator()
+                            Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+                                CircularProgressIndicator()
+                            }
                         }
-                    }else {
-                        if(foodDataState.foodData != null){
+                    } else {
+                        if (foodDataState.foodData != null) {
                             items(foodDataState.foodData.data) { foodData ->
-
                                 ProductItem(
                                     menuViewModel = menuViewModel,
                                     foodData = foodData
                                 )
-
                             }
-                        }else{
+                        } else {
                             item {
-                                Text(foodDataState.error,color = colorResource(Constants.TEXT_COLOR))
+                                Text(
+                                    foodDataState.error,
+                                    color = colorResource(Constants.TEXT_COLOR)
+                                )
                             }
                         }
                     }
@@ -326,7 +345,11 @@ private fun ProductItem(
         Box(
             modifier = Modifier
                 .background(colorResource(Constants.BACKGROUND_COLOR))
-                .border(1.dp, color = colorResource(Constants.TEXT_COLOR), shape = RoundedCornerShape(12.dp))
+                .border(
+                    1.dp,
+                    color = colorResource(Constants.TEXT_COLOR),
+                    shape = RoundedCornerShape(12.dp)
+                )
         ) {
 
             Row(
@@ -365,18 +388,22 @@ private fun ProductItem(
                         Text(
                             foodData.name,
                             fontFamily = Constants.POOPINS_FONT_BOLD,
+                            fontSize = 16.sp,
                             color = colorResource(Constants.TEXT_COLOR)
                         )
                         Text(
                             foodData.description,
-                            fontSize = 10.sp,
+                            fontSize = 12.sp,
                             fontFamily = Constants.POOPINS_FONT_REGULAR,
+                            maxLines = 2,
+                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                             color = colorResource(Constants.TEXT_COLOR)
                         )
                     }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text(
                             text = Constants.getCurrency(foodData.price.toInt()),
+                            fontSize = 14.sp,
                             color = colorResource(Constants.TEXT_COLOR),
                             fontFamily = Constants.POOPINS_FONT_BOLD,
                         )
@@ -409,12 +436,16 @@ private fun ProductItem(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Default.StarRate,
+                        imageVector = Icons.Default.Timer,
                         contentDescription = "",
-                        tint = Color.Green,
+                        tint = Color.Green.copy(alpha = 0.8f),
                         modifier = Modifier.size(18.dp)
                     )
-                    Text("${foodData.preparationTime}",color = colorResource(Constants.TEXT_COLOR))
+                    Text(
+                        text = "${foodData.preparationTime}",
+                        color = colorResource(Constants.TEXT_COLOR),
+                        fontSize = 14.sp
+                    )
                 }
 
 
@@ -424,7 +455,7 @@ private fun ProductItem(
                 modifier = Modifier
                     .padding(12.dp)
                     .clip(RoundedCornerShape(50.dp))
-                    .background(colorResource(Constants.BLUE_COLOR))
+                    .background(colorResource(Constants.LIGHT_ORANGE_COLOR))
                     .padding(horizontal = 24.dp, vertical = 2.dp)
                     .align(Alignment.BottomEnd)
                     .clickable {
@@ -434,7 +465,9 @@ private fun ProductItem(
             ) {
                 Text(
                     "Add",
-                    color = colorResource(Constants.TEXT_COLOR),
+                    color = colorResource(Constants.BUTTON_TEXT_COLOR),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
                     fontFamily = Constants.POOPINS_FONT_REGULAR
                 )
             }
@@ -462,6 +495,7 @@ fun BillItemView(
         Text(
             text = foodData.first.name,
             fontFamily = Constants.POOPINS_FONT_REGULAR,
+            fontSize = 14.sp,
             textAlign = TextAlign.Start,
             modifier = Modifier.weight(0.3f),
             color = colorResource(Constants.TEXT_COLOR)
@@ -469,6 +503,7 @@ fun BillItemView(
         Text(
             text = "${foodData.second}",
             fontFamily = Constants.POOPINS_FONT_REGULAR,
+            fontSize = 14.sp,
             textAlign = TextAlign.Center,
             modifier = Modifier.weight(0.2f),
             color = colorResource(Constants.TEXT_COLOR)
@@ -477,6 +512,7 @@ fun BillItemView(
             text = Constants.getCurrency(foodData.first.price.toInt()),
             fontFamily = Constants.POOPINS_FONT_REGULAR,
             textAlign = TextAlign.Center,
+            fontSize = 14.sp,
             modifier = Modifier.weight(0.2f),
             color = colorResource(Constants.TEXT_COLOR)
         )
@@ -485,6 +521,7 @@ fun BillItemView(
             text = Constants.getCurrency(total_price),
             fontFamily = Constants.POOPINS_FONT_REGULAR,
             textAlign = TextAlign.Center,
+            fontSize = 14.sp,
             modifier = Modifier.weight(0.2f),
             color = colorResource(Constants.TEXT_COLOR)
         )

@@ -6,14 +6,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -125,7 +123,7 @@ fun OtpScreen(navHostController: NavHostController) {
                         .padding(12.dp),
                     shape = RoundedCornerShape(7.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = colorResource(Constants.BLUE_COLOR)
+                        containerColor = colorResource(Constants.ORANGE_COLOR)
                     ),
                     onClick = {
                         scope.launch {

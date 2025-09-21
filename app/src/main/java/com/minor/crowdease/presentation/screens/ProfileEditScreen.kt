@@ -2,7 +2,6 @@ package com.minor.crowdease.presentation.screens
 
 import android.content.Context
 import android.net.Uri
-import android.widget.Space
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -22,7 +21,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ModeEdit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -31,7 +29,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,7 +40,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
@@ -138,7 +134,7 @@ fun ProfileEditScreen(modifier: Modifier = Modifier, navHostController: NavHostC
                         model = if(selectedImageUri == null) userInfoState!!.student.image else selectedImageUri,
                         contentDescription = "",
                         modifier = Modifier.size(170.dp)
-                            .border(2.dp, colorResource(Constants.BLUE_COLOR), shape = CircleShape)
+                            .border(2.dp, colorResource(Constants.ORANGE_COLOR), shape = CircleShape)
                             .padding(8.dp)
                             .alpha(0.5f)
                             .clip(CircleShape)
@@ -223,7 +219,7 @@ fun ProfileEditScreen(modifier: Modifier = Modifier, navHostController: NavHostC
                                 .padding(12.dp),
                             shape = RoundedCornerShape(7.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = colorResource(Constants.BLUE_COLOR)
+                                containerColor = colorResource(Constants.ORANGE_COLOR)
                             ),
                             onClick = {
                                 scope.launch {

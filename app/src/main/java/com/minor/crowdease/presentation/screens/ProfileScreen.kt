@@ -1,7 +1,6 @@
 package com.minor.crowdease.presentation.screens
 
 import android.content.Context
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +21,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ContactSupport
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
@@ -50,7 +48,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -60,11 +57,9 @@ import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
 import com.minor.crowdease.R
 import com.minor.crowdease.data.dto.user.Student
-import com.minor.crowdease.data.dto.user.UserDto
 import com.minor.crowdease.navigations.Screens
 import com.minor.crowdease.presentation.viewmodels.LoginViewModel
 import com.minor.crowdease.utlis.Constants
-import kotlinx.coroutines.launch
 
 
 @Composable
@@ -146,7 +141,8 @@ private fun ProfileScreenPreview(navHostController:NavHostController) {
                             Spacer(modifier = Modifier.height(24.dp))
                             Text(
                                 "Are You Sure!",
-                                fontFamily = Constants.POOPINS_FONT_BOLD
+                                fontFamily = Constants.POOPINS_FONT_BOLD,
+                                fontSize = 14.sp,
                             )
 
                             Spacer(modifier = Modifier.height(24.dp))
@@ -160,7 +156,8 @@ private fun ProfileScreenPreview(navHostController:NavHostController) {
                                 ) {
                                     Text("I'm Sure",
                                         fontFamily = Constants.POOPINS_FONT_BOLD,
-                                        color = colorResource(Constants.BLUE_COLOR)
+                                        fontSize = 14.sp,
+                                        color = colorResource(Constants.ORANGE_COLOR)
                                     )
                                 }
 
@@ -171,6 +168,7 @@ private fun ProfileScreenPreview(navHostController:NavHostController) {
                                 ) {
                                     Text("Cancel",
                                         fontFamily = Constants.POOPINS_FONT_BOLD,
+                                        fontSize = 14.sp,
                                         color = colorResource(Constants.GREEN_COLOR)
                                     )
                                 }
@@ -217,7 +215,7 @@ private fun ProfileScreenPreview(navHostController:NavHostController) {
                             Text(
                                 "$name",
                                 fontFamily = Constants.POOPINS_FONT_BOLD,
-                                fontSize = 24.sp,
+                                fontSize = 18.sp,
                                 softWrap = true,
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
@@ -227,7 +225,7 @@ private fun ProfileScreenPreview(navHostController:NavHostController) {
                             Text(
                                 "ID: $email",
                                 fontFamily = Constants.POOPINS_FONT_BOLD,
-                                fontSize = 14.sp,
+                                fontSize = 12.sp,
                                 softWrap = true,
                                 overflow = TextOverflow.Ellipsis,
                                 color = colorResource(Constants.TEXT_COLOR)
@@ -238,8 +236,8 @@ private fun ProfileScreenPreview(navHostController:NavHostController) {
 
                         Box(
                             modifier = Modifier
-                                .size(34.dp)
-                                .weight(0.07f)
+                                .size(28.dp)
+                                .weight(0.05f)
                                 .clip(RoundedCornerShape(7.dp))
                                 .background(colorResource(Constants.GREY)),
                             contentAlignment = Alignment.Center
@@ -248,6 +246,7 @@ private fun ProfileScreenPreview(navHostController:NavHostController) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = "notification_icon",
+                                modifier = Modifier.size(18.dp),
                                 tint = colorResource(Constants.BACKGROUND_COLOR)
                             )
 
@@ -294,7 +293,7 @@ private fun ProfileScreenPreview(navHostController:NavHostController) {
                                 text = "Settings",
                                 fontFamily = Constants.POOPINS_FONT_BOLD,
                                 color = colorResource(Constants.TEXT_COLOR),
-                                fontSize = 18.sp,
+                                fontSize = 16.sp,
                                 modifier = Modifier.padding(12.dp)
                             )
 
@@ -346,13 +345,14 @@ fun SettingItem(modifier: Modifier = Modifier,setting: Setting) {
         Icon(
             imageVector = setting.icon,
             contentDescription = "profile_icon",
-            modifier = Modifier.weight(0.2f),
+            modifier = Modifier.weight(0.2f).height(28.dp),
             tint = colorResource(Constants.TEXT_COLOR)
         )
 
         Text(
             text = setting.name,
             fontFamily = Constants.POOPINS_FONT_SEMI_BOLD,
+            fontSize = 14.sp,
             modifier = Modifier.weight(0.6f),
             color = colorResource(Constants.TEXT_COLOR)
         )
@@ -360,7 +360,7 @@ fun SettingItem(modifier: Modifier = Modifier,setting: Setting) {
         Icon(
             imageVector = Icons.AutoMirrored.Default.KeyboardArrowRight,
             contentDescription = "profile_icon",
-            modifier = Modifier.weight(0.2f),
+            modifier = Modifier.weight(0.2f).size(28.dp),
             tint = colorResource(Constants.TEXT_COLOR)
         )
 

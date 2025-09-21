@@ -31,14 +31,10 @@ class PaymentActivity:ComponentActivity(),PaymentResultWithDataListener,External
         super.onCreate(savedInstanceState)
         val amount = intent.getIntExtra("totalAmount",0)
         setContent {
-
             startPayment(amount)
-
-
         }
 
     }
-
 
     private fun startPayment(amount:Int) {
         Checkout.preload(applicationContext)
@@ -47,7 +43,7 @@ class PaymentActivity:ComponentActivity(),PaymentResultWithDataListener,External
         try {
             val options = JSONObject()
             options.put("name","CROWDEASE")
-            options.put("description","Hotel Booking Charges")
+            options.put("description","Order Payment")
             //You can omit the image option to fetch the image from the dashboard
             options.put("image","https://i.pinimg.com/736x/ec/4e/e0/ec4ee0841975985154a827be450a0cae.jpg")
             options.put("theme.color", "#8293D2");
@@ -62,7 +58,8 @@ class PaymentActivity:ComponentActivity(),PaymentResultWithDataListener,External
             co.open(this,options)
         } catch (e: Exception){
             Toast.makeText(this,"Error in payment: "+ e.message, Toast.LENGTH_LONG).show()
-            e.printStackTrace()
+            setResult(RESULT_CANCELED)
+            finish()
         }
     }
 
@@ -70,7 +67,7 @@ class PaymentActivity:ComponentActivity(),PaymentResultWithDataListener,External
         Log.d("VandanPayment","Success"+p0+"->"+ p1?.let { show(it) })
         val intent = Intent()
         intent.putExtra("paymentId",p0)
-        setResult(Activity.RESULT_OK,intent)
+        setResult(RESULT_OK,intent)
         finish()
     }
 
@@ -78,7 +75,7 @@ class PaymentActivity:ComponentActivity(),PaymentResultWithDataListener,External
         Log.d("VandanPayment","Error"+p0+"->"+p1)
         val intent = Intent()
         intent.putExtra("paymentId",p0)
-        setResult(Activity.RESULT_CANCELED,intent)
+        setResult(RESULT_CANCELED,intent)
         finish()
     }
 
@@ -88,26 +85,12 @@ class PaymentActivity:ComponentActivity(),PaymentResultWithDataListener,External
 
 
     private fun show(paymentData: PaymentData):String{
-
         return ""+paymentData.paymentId +
                 paymentData.data +
                 paymentData.orderId +
                 paymentData.userEmail +
                 paymentData.userContact
-
     }
 
 
-}
-
-@Composable
-fun PaymentScreen(onPayNowClick: () -> Unit) {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Button(onClick = onPayNowClick) {
-            Text("Pay Now")
-        }
-    }
 }

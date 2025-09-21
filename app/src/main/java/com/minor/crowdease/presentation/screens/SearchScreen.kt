@@ -24,6 +24,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shop
 import androidx.compose.material.icons.filled.Star
@@ -54,6 +55,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.capitalize
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -98,7 +100,7 @@ fun SearchScreen(navHostController: NavHostController) {
                     Text(
                         text = "Food Courts",
                         fontFamily = Constants.POOPINS_FONT_REGULAR,
-                        fontSize = 32.sp,
+                        fontSize = 18.sp,
                         color = colorResource(Constants.TEXT_COLOR)
                     )
                     Box(
@@ -129,7 +131,11 @@ fun SearchScreen(navHostController: NavHostController) {
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(12.dp)
-                        .border(1.dp, colorResource(Constants.TEXT_COLOR), RoundedCornerShape(18.dp)),
+                        .border(
+                            1.dp,
+                            colorResource(Constants.TEXT_COLOR),
+                            RoundedCornerShape(18.dp)
+                        ),
                     value = searchQuery,
                     textStyle = TextStyle(fontFamily = Constants.POOPINS_FONT_REGULAR),
                     placeholder = {
@@ -165,6 +171,7 @@ fun SearchScreen(navHostController: NavHostController) {
                         CircularProgressIndicator(modifier = Modifier.padding(16.dp))
                     }
                 }
+
                 foodCourtState.error != null -> {
                     item {
                         Text(
@@ -174,6 +181,7 @@ fun SearchScreen(navHostController: NavHostController) {
                         )
                     }
                 }
+
                 foodCourtState.foodCourts != null -> {
                     val filteredFoodCourts = if (debouncedSearchQuery.isBlank()) {
                         foodCourtState.foodCourts!!.data
@@ -212,9 +220,9 @@ fun FoodCourtItem(
         .collectAsStateWithLifecycle()
 
     val rushStatus = when {
-        pendingOrdersState.pendingOrders < 6 -> "Low Rush" to Color.Green
-        pendingOrdersState.pendingOrders <= 15 -> "Mid Rush" to Color.Yellow
-        else -> "High Rush" to Color.Red
+        pendingOrdersState.pendingOrders < 6 -> "Low Rush" to Color.Green.copy(alpha = 0.8f)
+        pendingOrdersState.pendingOrders <= 15 -> "Mid Rush" to Color.Yellow.copy(alpha = 0.8f)
+        else -> "High Rush" to Color.Red.copy(alpha = 0.8f)
     }
 
     val animatedColor by animateColorAsState(
@@ -265,7 +273,9 @@ fun FoodCourtItem(
                 ) {
                     Text(
                         text = rushStatus.first,
-                        color = Color.White,
+                        color = Color.DarkGray,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp,
                         fontFamily = Constants.POOPINS_FONT_REGULAR
                     )
                 }
@@ -284,7 +294,7 @@ fun FoodCourtItem(
                 Text(
                     text = foodCourt.name,
                     fontFamily = Constants.POOPINS_FONT_SEMI_BOLD,
-                    fontSize = 24.sp,
+                    fontSize = 16.sp,
                     color = colorResource(Constants.TEXT_COLOR)
                 )
                 Row(
@@ -299,6 +309,7 @@ fun FoodCourtItem(
                     )
                     Text(
                         "4.5",
+                        fontSize = 14.sp,
                         fontFamily = Constants.POOPINS_FONT_REGULAR,
                         color = colorResource(Constants.TEXT_COLOR)
                     )
@@ -306,13 +317,13 @@ fun FoodCourtItem(
 
             }
 
-            Text(
-                text = foodCourt.location,
-                fontFamily = Constants.POOPINS_FONT_REGULAR,
-                fontSize = 16.sp,
-                color = colorResource(Constants.TEXT_COLOR),
-                modifier = Modifier.padding(horizontal = 12.dp)
-            )
+//            Text(
+//                text = foodCourt.location,
+//                fontFamily = Constants.POOPINS_FONT_REGULAR,
+//                fontSize = 14.sp,
+//                color = colorResource(Constants.TEXT_COLOR),
+//                modifier = Modifier.padding(horizontal = 12.dp)
+//            )
 
             Row(
                 modifier = Modifier
@@ -327,40 +338,19 @@ fun FoodCourtItem(
                     modifier = Modifier.weight(0.2f)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Timer,
+                        imageVector = Icons.Default.LocationOn,
                         contentDescription = "clock_icon",
                         tint = Color.Gray,
                         modifier = Modifier.size(18.dp)
                     )
                     Text(
-                        "30 min",
+                        foodCourt.location,
+                        fontSize = 14.sp,
                         fontFamily = Constants.POOPINS_FONT_REGULAR,
                         color = colorResource(Constants.TEXT_COLOR)
                     )
                 }
-
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(0.2f)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Shop,
-                        contentDescription = "clock_icon",
-                        tint = Color.Gray,
-                        modifier = Modifier.size(18.dp)
-                    )
-                    Text(
-                        "4 Outlets",
-                        fontFamily = Constants.POOPINS_FONT_REGULAR,
-                        color = colorResource(Constants.TEXT_COLOR)
-                    )
-                }
-
-
             }
-
-
         }
-        }
+    }
 }

@@ -1,10 +1,13 @@
 package com.minor.crowdease.di
+
 import android.content.Context
 import android.content.SharedPreferences
 import com.minor.crowdease.data.dto.chat.FCMApi
 import com.minor.crowdease.data.remote.FoodCourtService
 import com.minor.crowdease.data.remote.LoginService
+import com.minor.crowdease.data.remote.OrderHistoryService
 import com.minor.crowdease.data.remote.OrderService
+import com.minor.crowdease.data.remote.PaymentService
 import com.minor.crowdease.data.remote.ShopService
 import com.minor.crowdease.utlis.Constants
 import com.minor.crowdease.utlis.Constants.Companion.TOKENPREF
@@ -22,16 +25,13 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object Modules {
-
     @Provides
     @Singleton
-    fun providesFoodCourtService():FoodCourtService{
-
+    fun providesFoodCourtService(): FoodCourtService {
         val client = OkHttpClient
             .Builder()
             .connectTimeout(2, TimeUnit.MINUTES)
             .callTimeout(2, TimeUnit.MINUTES).build()
-
 
         return Retrofit
             .Builder()
@@ -40,19 +40,15 @@ object Modules {
             .baseUrl(Constants.BASE_URL)
             .build()
             .create(FoodCourtService::class.java)
-
     }
-
 
     @Provides
     @Singleton
-    fun providesShopService():ShopService{
-
+    fun providesShopService(): ShopService {
         val client = OkHttpClient
             .Builder()
             .connectTimeout(2, TimeUnit.MINUTES)
             .callTimeout(2, TimeUnit.MINUTES).build()
-
 
         return Retrofit
             .Builder()
@@ -61,18 +57,32 @@ object Modules {
             .baseUrl(Constants.BASE_URL)
             .build()
             .create(ShopService::class.java)
-
     }
 
     @Provides
     @Singleton
-    fun providesLoginService():LoginService{
-
+    fun providesOrderHistoryService(): OrderHistoryService {
         val client = OkHttpClient
             .Builder()
             .connectTimeout(2, TimeUnit.MINUTES)
             .callTimeout(2, TimeUnit.MINUTES).build()
 
+        return Retrofit
+            .Builder()
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(Constants.BASE_URL)
+            .build()
+            .create(OrderHistoryService::class.java)
+    }
+
+    @Provides
+    @Singleton
+    fun providesLoginService(): LoginService {
+        val client = OkHttpClient
+            .Builder()
+            .connectTimeout(2, TimeUnit.MINUTES)
+            .callTimeout(2, TimeUnit.MINUTES).build()
 
         return Retrofit
             .Builder()
@@ -81,20 +91,15 @@ object Modules {
             .baseUrl(Constants.BASE_URL)
             .build()
             .create(LoginService::class.java)
-
     }
-
-
 
     @Provides
     @Singleton
-    fun providesOrderService():OrderService{
-
+    fun providesOrderService(): OrderService {
         val client = OkHttpClient
             .Builder()
             .connectTimeout(2, TimeUnit.MINUTES)
             .callTimeout(2, TimeUnit.MINUTES).build()
-
 
         return Retrofit
             .Builder()
@@ -103,21 +108,30 @@ object Modules {
             .baseUrl(Constants.BASE_URL)
             .build()
             .create(OrderService::class.java)
-
     }
 
+    @Provides
+    @Singleton
+    fun providesPaymentService(): PaymentService {
+        val client = OkHttpClient
+            .Builder()
+            .connectTimeout(2, TimeUnit.MINUTES)
+            .callTimeout(2, TimeUnit.MINUTES).build()
 
-
+        return Retrofit
+            .Builder()
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
+            .baseUrl(Constants.BASE_URL)
+            .build()
+            .create(PaymentService::class.java)
+    }
 
     @Provides
     @Singleton
     fun providesSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
-
         return context.getSharedPreferences(TOKENPREF, Context.MODE_PRIVATE)
-
     }
-
-
 
     @Provides
     @Singleton
@@ -131,11 +145,5 @@ object Modules {
             .baseUrl("http://10.0.2.2:8080/")
             .addConverterFactory(GsonConverterFactory.create())
             .build().create(FCMApi::class.java)
-
     }
-
-
-
-
-
 }

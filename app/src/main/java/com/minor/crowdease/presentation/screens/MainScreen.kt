@@ -16,13 +16,8 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -32,7 +27,6 @@ import androidx.navigation.NavHostController
 import com.exyte.animatednavbar.AnimatedNavigationBar
 import com.exyte.animatednavbar.animation.balltrajectory.Straight
 import com.exyte.animatednavbar.animation.indendshape.ShapeCornerRadius
-import com.exyte.animatednavbar.utils.noRippleClickable
 import com.minor.crowdease.utlis.Constants
 import kotlinx.coroutines.launch
 
@@ -86,7 +80,7 @@ fun BottomNavigationBar(
     AnimatedNavigationBar(
         selectedIndex = currentPage,
         modifier = modifier.padding(24.dp),
-        ballColor = colorResource(Constants.BLUE_COLOR),
+        ballColor = colorResource(Constants.ORANGE_COLOR),
         ballAnimation = Straight(tween(400, easing = FastOutSlowInEasing)), // Faster animation
         cornerRadius = ShapeCornerRadius(60f, 60f, 60f, 60f)
     ) {
@@ -105,7 +99,7 @@ fun BottomNavigationBar(
                     imageVector = item.icon,
                     contentDescription = item.name, // Accessibility improvement
                     tint = if (currentPage == item.ordinal) {
-                        colorResource(Constants.BLUE_COLOR)
+                        colorResource(Constants.ORANGE_COLOR)
                     } else {
                         colorResource(Constants.GREY)
                     }

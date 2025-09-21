@@ -7,8 +7,10 @@
     <color name="dark_blue">#1976d2</color>
     <color name="light_blue">#bbdefb</color>
     <color name="blue">#2196f3</color>
-    <color name="orange">#ff5252</color>
+    <color name="light_orange">#E82933</color>
+    <color name="orange">#EF4444</color>
     <color name="dark_grey">#757575</color>
+    <color name="button_text_color">#FFFFFF</color>
     <color name="grey">#BDBDBD</color>
     <color name="green">#4caf50</color>
     <color name="text">#FFFFFF</color>

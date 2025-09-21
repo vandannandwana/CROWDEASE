@@ -112,4 +112,6 @@ dependencies {
     //kotlin-core
     implementation("androidx.core:core-ktx:1.7.0")
 
+    //lottie-animation
+    implementation("com.airbnb.android:lottie-compose:4.0.0")
 }

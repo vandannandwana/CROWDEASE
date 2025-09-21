@@ -94,13 +94,7 @@ class FoodCourtViewModel @Inject constructor(
         }
     }
 
-    // Optional: Refresh pending orders manually
-    fun refreshPendingOrders(foodCourtId: String) {
-        fetchPendingOrders(foodCourtId)
-    }
 }
-
-// Updated state classes
 data class FoodCourtState(
     val isLoading: Boolean = false,
     val foodCourts: FoodCourtDto? = null,

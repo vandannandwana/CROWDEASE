@@ -36,12 +36,12 @@ class HomeViewModel @Inject constructor(
             while (true) {
                 try {
                     val orders = courtService.pendingOrderFoodCourt(foodCourtId) // Fetch from API/DB
-                    Log.d("VANDAN PENDING ORDERS", "Polling $foodCourtId: ${orders.pendingOrders}")
+                    Log.d("PENDING ORDERS", "Polling $foodCourtId: ${orders.pendingOrders}")
                     flow.emit(orders.pendingOrders) // Update flow with new data
                 } catch (e: Exception) {
-                    Log.e("VANDAN ERROR", "Error fetching pending orders", e)
+                    Log.e("ERROR", "Error fetching pending orders", e)
                 }
-                delay(5000) // Fetch updates every 15 seconds
+                delay(25000)
             }
         }
     }

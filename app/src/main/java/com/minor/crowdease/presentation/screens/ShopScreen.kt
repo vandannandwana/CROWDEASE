@@ -4,6 +4,7 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -19,15 +20,19 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Shop
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Timer
+import androidx.compose.material.icons.outlined.FilterAlt
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,6 +48,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -66,6 +73,10 @@ fun ShopScreen(
 
     val shopState = shopViewModel.shopState.collectAsStateWithLifecycle().value
 
+    var searchQuery by remember {
+        mutableStateOf("")
+    }
+
     val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
@@ -83,8 +94,101 @@ fun ShopScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(it)
+                .padding(it),
+            horizontalAlignment = Alignment.CenterHorizontally
         ){
+
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Column(modifier = Modifier) {
+                        Text(
+                            "SHOPS",
+                            fontFamily = Constants.POOPINS_FONT_REGULAR,
+                            color = colorResource(Constants.ORANGE_COLOR),
+                            fontSize = 18.sp
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(RoundedCornerShape(7.dp))
+                            .background(Color.LightGray),
+                        contentAlignment = Alignment.Center
+                    ) {
+
+                        Icon(
+                            imageVector = Icons.Outlined.FilterAlt,
+                            contentDescription = "notification_icon"
+                        )
+
+                    }
+
+                }
+
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(2.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.LightGray
+                    ),
+                    elevation = CardDefaults.cardElevation(
+                        defaultElevation = 7.dp
+                    )
+                ) {}
+            }
+
+            item {
+                //SearchBox
+                TextField(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp)
+                        .border(
+                            1.dp,
+                            colorResource(Constants.TEXT_COLOR),
+                            RoundedCornerShape(18.dp)
+                        ),
+                    value = searchQuery,
+                    textStyle = TextStyle(
+                        fontFamily = Constants.POOPINS_FONT_REGULAR,
+                        fontSize = 14.sp
+                    ),
+                    placeholder = {
+                        Text(
+                            "Search Shop",
+                            fontFamily = Constants.POOPINS_FONT_REGULAR,
+                            color = colorResource(Constants.TEXT_COLOR),
+                            fontSize = 14.sp
+                        )
+                    },
+                    onValueChange = { searchQuery = it },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = colorResource(Constants.BACKGROUND_COLOR),
+                        unfocusedContainerColor = colorResource(Constants.BACKGROUND_COLOR),
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                    ),
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            tint = Color.LightGray,
+                            contentDescription = "search_icn",
+                            modifier = Modifier
+                                .size(28.dp)
+                                .padding(start = 2.dp)
+                        )
+                    }
+                )
+            }
 
             if(shopState.isLoading){
                 item { CircularProgressIndicator() }
@@ -128,8 +232,6 @@ fun ShopItem(
     navHostController: NavHostController,
     foodCourtId: String
 ) {
-
-
     var pendingOrders by rememberSaveable {
         mutableIntStateOf(0)
     }
@@ -139,7 +241,7 @@ fun ShopItem(
     }
 
     val animatePendingOrderColor by animateColorAsState(
-        targetValue = if (pendingOrders<6) Color.Green else if (pendingOrders<=15) Color.Yellow else Color.Red,
+        targetValue = if (pendingOrders<6) Color.Green.copy(alpha = 0.8f) else if (pendingOrders<=15) Color.Yellow.copy(alpha = 0.8f) else Color.Red.copy(alpha = 0.8f),
         animationSpec = tween(durationMillis = 1200)
     )
 
@@ -155,7 +257,7 @@ fun ShopItem(
             .fillMaxWidth()
             .padding(12.dp)
             .clickable {
-                navHostController.navigate(Screens.MenuScreen.route+"${shopData.id}/${foodCourtId}")
+                navHostController.navigate(Screens.MenuScreen.route + "${shopData.id}/${foodCourtId}")
             },
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
@@ -175,7 +277,9 @@ fun ShopItem(
                 AsyncImage(
                     model = shopData.images,
                     contentDescription = "food_court_image",
-                    modifier = Modifier.fillMaxWidth().height(180.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(180.dp),
                     contentScale = ContentScale.Crop
                 )
                 Box(
@@ -188,8 +292,10 @@ fun ShopItem(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text=text,
-                        color = Color.White,
+                        text = text,
+                        color = Color.DarkGray,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 12.sp,
                         fontFamily = Constants.POOPINS_FONT_REGULAR
                     )
                 }
@@ -208,7 +314,7 @@ fun ShopItem(
                 Text(
                     text = shopData.name,
                     fontFamily = Constants.POOPINS_FONT_SEMI_BOLD,
-                    fontSize = 28.sp,
+                    fontSize = 18.sp,
                     color = colorResource(Constants.TEXT_COLOR)
                 )
                 Row(
@@ -223,6 +329,7 @@ fun ShopItem(
                     )
                     Text(
                         "4.5",
+                        fontSize = 14.sp,
                         fontFamily = Constants.POOPINS_FONT_REGULAR,
                         color = colorResource(Constants.TEXT_COLOR)
                     )
@@ -233,7 +340,7 @@ fun ShopItem(
             Text(
                 text = shopData.contactPhone,
                 fontFamily = Constants.POOPINS_FONT_REGULAR,
-                fontSize = 18.sp,
+                fontSize = 14.sp,
                 color = colorResource(Constants.TEXT_COLOR),
                 modifier = Modifier.padding(horizontal = 12.dp)
             )
@@ -256,7 +363,11 @@ fun ShopItem(
                         tint = Color.Gray,
                         modifier = Modifier.size(18.dp)
                     )
-                    Text("30 min", fontFamily = Constants.POOPINS_FONT_REGULAR,color = colorResource(Constants.TEXT_COLOR))
+                    Text("30 min",
+                        fontFamily = Constants.POOPINS_FONT_REGULAR,
+                        fontSize = 14.sp,
+                        color = colorResource(Constants.TEXT_COLOR)
+                    )
                 }
 
                 Row(
@@ -270,7 +381,11 @@ fun ShopItem(
                         tint = Color.Gray,
                         modifier = Modifier.size(18.dp)
                     )
-                    Text("4 Outlets", fontFamily = Constants.POOPINS_FONT_REGULAR,color = colorResource(Constants.TEXT_COLOR))
+                    Text("4 Outlets",
+                        fontFamily = Constants.POOPINS_FONT_REGULAR,
+                        fontSize = 14.sp,
+                        color = colorResource(Constants.TEXT_COLOR)
+                    )
                 }
 
 

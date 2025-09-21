@@ -22,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MenuViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    val shopService: ShopService
+    val shopService: ShopService,
 ) : ViewModel() {
 
     // Use StateFlow for selected items (ensure FoodData is Parcelable or Serializable)
@@ -33,6 +33,11 @@ class MenuViewModel @Inject constructor(
 
     private val _foodDataState = MutableStateFlow(FoodDataState())
     val foodDataState: StateFlow<FoodDataState> = _foodDataState.asStateFlow()
+
+    fun clearCart() {
+        _selectedItems.value = emptyMap()
+        savedStateHandle["selectedItem"] = emptyMap<FoodData, Int>()
+    }
 
     suspend fun getFoodData(shopId: String) {
         try {

@@ -1,9 +1,6 @@
 package com.minor.crowdease.utlis
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import com.minor.crowdease.R
@@ -15,7 +12,9 @@ class Constants {
         val POOPINS_FONT_SEMI_BOLD = FontFamily(Font(R.font.poppins_semi_bold))
         val POOPINS_FONT_BOLD = FontFamily(Font(R.font.poppins_bold))
         val PROTEST_FONT = FontFamily(Font(R.font.protest_revolution_regular))
-        val BLUE_COLOR = R.color.blue
+        val ORANGE_COLOR = R.color.orange
+        val LIGHT_ORANGE_COLOR = R.color.light_orange
+        val BUTTON_TEXT_COLOR = R.color.button_text_color
         val GREEN_COLOR = R.color.green
         val PAYMENT_GREEN_COLOR = R.color.green
         val GREY = R.color.grey
@@ -26,11 +25,10 @@ class Constants {
         val STUDENT_NAME = "STUDENT_NAME"
         val STUDENT_EMAIL = "STUDENT_EMAIL"
         val STUDENT_PHONE_NUMBER = "STUDENT_PHONE_NUMBER"
-        val BASE_URL = "YOUR SERVER ADDRESS"
+        val BASE_URL = "http://192.168.29.233:3000"
 
         @Composable
-        fun getCurrency(amount: Int): String {
-
+        fun getCurrency(amount: Any): String {
             val formater = NumberFormat.getInstance()
             formater.maximumFractionDigits = 0
             formater.currency = java.util.Currency.getInstance("INR")
